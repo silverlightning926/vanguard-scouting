@@ -1,0 +1,11 @@
+{
+  "name": "vanguard_backend",
+  "version": "1.0.0",
+  "description": "The backend service for the Vanguard scouting app",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Stealthy Squirrels",
+  "license": "MIT"
+}
