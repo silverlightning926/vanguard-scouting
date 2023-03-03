@@ -1,0 +1,88 @@
+/*
+ *
+ *  File: 	VanguardPreparedStatements.txt	
+ *
+ *  Purpose: 	Documents the prepared commands for creating 
+ * 		and updating records within the  
+ *		2023 Scouting app Databse 
+ *  
+ *  Author: 	Cordelia Notbohm
+ *  Version: 	1.1.0
+ *  Date:    	3/3/23
+ *
+ */
+
+
+-------------------------------------------------------------
+--   Statements for inserting records from blue alliance   --
+-------------------------------------------------------------
+
+/*
+ * 	The following prepare statements are the statements 
+ * 	That are expected to be needed in order to pull 
+ * 	and enter team, competition, and match data from 
+ * 	blue alliance prior to a competition
+ */
+
+
+/*
+ *	Inserting a new robot record for a given FRC team 
+ */ 
+PREPARE insertARobot (varchar(10), varchar(6), varchar(60)) AS 
+	INSERT INTO Robot (TBAKey, number, name)
+	VALUES ($1, $2, $3);
+
+-- example execute:
+-- EXECUTE insertARobot ('frc2930', '2930', 'Sonic Squirrels');
+
+
+
+
+/*
+ *	Inserting a new competition record for a given competition
+ */ 
+PREPARE insertACompetition (varchar(12), varchar(120), date) AS 
+	INSERT INTO Competition (TBAKey, name, startDate)
+	VALUES ($1, $2, $3);
+
+-- example execute:
+-- EXECUTE insertACompetition ('2023WASNO', 'Glacier Peak', '2023-3-4');
+
+
+
+
+/*
+ *	Inserting a new match record for a given match 
+ */ 
+PREPARE insertAMatch (varchar(20), varchar(12), varchar(2), varchar(3)) AS 
+	INSERT INTO Match (TBAKey, competitionTBAKey, matchTypeID, number)
+	VALUES ($1, $2, $3, $4);
+
+-- example execute:
+-- EXECUTE insertAMatch('2023WASNO_qmm1', '2023WASNO', 'Q', '1');
+
+
+
+
+/*
+ *	Inserting a new RobotInMatch record to record a robot 
+ * 	Being scheduled for a particular match  
+ */ 
+PREPARE insertARobotInMatch (varchar(20), varchar(10), char(2)) AS 
+	INSERT INTO RobotInMatch (matchTBAKey, robotTBAKey, allianceStationID)
+	VALUES ($1, $2, $3);
+
+-- example execute:
+-- EXECUTE insertARobotInMatch('2023WASNO_qmm1', 'frc2930', 'R1');
+
+
+-----------------------------------------------------------------
+--   Statements for inserting records while scouting a match   --
+-----------------------------------------------------------------
+
+
+
+
+-----------------------------------------------------------------
+--   Statements for getting information from collected data    --
+-----------------------------------------------------------------
