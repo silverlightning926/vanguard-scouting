@@ -1,13 +1,13 @@
 /*
  *
- *  File: 	2023-2-21_ScoutingAppDBCreationCommands.txt	
+ *  File: 	2023ScoutingAppDBCreationCommands.txt	
  *
  *  Purpose: 	Documents the commands for creating the 
  *		2023 Scouting app Databse within psql
  *  
  *  Author: 	Cordelia Notbohm
  *  Version: 	1.1.0
- *  Date:    	2/21/23
+ *  Date:    	2/23/23
  *
  */
 
@@ -39,10 +39,11 @@ CREATE DATABASE scoutingdb2023;
  */
 
 CREATE TABLE Robot (
-	number 		varchar(6) 	NOT NULL,
+	TBAKey 		varchar(10) 	NOT NULL,
+	number 		varchar(6) 	NOT NULL UNIQUE,
 	name 		varchar(60) 	NOT NULL,
 
-	PRIMARY KEY 	(number)
+	PRIMARY KEY 	(TBAKey)
 );
 
 
@@ -56,11 +57,11 @@ CREATE TABLE Robot (
  */
 
 CREATE TABLE Competition (
-	eventKey 	varchar(12) 	NOT NULL,
-	name 		varchar(60) 	NOT NULL, 
+	TBAKey 		varchar(12) 	NOT NULL,
+	name 		varchar(120) 	NOT NULL, 
 	startDate 	date 		NOT NULL, 
 
-	PRIMARY KEY 	(eventKey)
+	PRIMARY KEY 	(TBAKey)
 );
 
 
@@ -90,13 +91,13 @@ CREATE TABLE MatchType (
  */
 
 CREATE TABLE Match (
-	ID  			serial 		NOT NULL,
-	competitionEventKey 	varchar(12) 	NOT NULL,
+	TBAKey  		varchar(20) 	NOT NULL,
+	competitionTBAKey 	varchar(12) 	NOT NULL,
 	matchTypeID 		varchar(2) 	NOT NULL,
 	number 			varchar(3) 	NOT NULL,
 
-	PRIMARY KEY 	(ID),
-	FOREIGN KEY 	(competitionEventKey) REFERENCES Competition(eventKey)
+	PRIMARY KEY 	(TBAKey),
+	FOREIGN KEY 	(competitionTBAKey) REFERENCES Competition(TBAKey)
 			DEFERRABLE INITIALLY DEFERRED,
  	FOREIGN KEY 	(matchTypeID) REFERENCES MatchType(ID)
 			DEFERRABLE INITIALLY DEFERRED
@@ -164,14 +165,14 @@ CREATE TABLE MatchPeriod (
 
 CREATE TABLE RobotInMatch (
 	ID 			serial 		NOT NULL,
-	matchID 		integer 	NOT NULL,
-	robotNumber 		varchar(6) 	NOT NULL,
-	allianceStationID	char(2) 	NOT NULL,
+	matchTBAKey 		varchar(20) 	NOT NULL,
+	robotTBAKey 		varchar(10) 	NOT NULL,
+	allianceStationID 	char(2) 	NOT NULL,
 
 	PRIMARY KEY 	(ID),
-	FOREIGN KEY 	(matchID) REFERENCES Match(ID)
+	FOREIGN KEY 	(matchTBAKey) REFERENCES Match(TBAKey)
 			DEFERRABLE INITIALLY DEFERRED,
- 	FOREIGN KEY 	(robotNumber) REFERENCES Robot(number)
+ 	FOREIGN KEY 	(robotTBAKey) REFERENCES Robot(TBAKey)
 			DEFERRABLE INITIALLY DEFERRED,
 	FOREIGN KEY 	(allianceStationID) REFERENCES AllianceStation(ID)
 			DEFERRABLE INITIALLY DEFERRED
