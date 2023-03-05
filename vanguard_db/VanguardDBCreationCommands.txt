@@ -194,7 +194,7 @@ CREATE TABLE RobotInMatch (
 CREATE TABLE Scout (
 	ID 			serial 		NOT NULL,
 	RobotInMatchID 		integer 	NOT NULL,
-	preloadedPieceID	varchar(2) 	,
+	preloadedPieceID 	varchar(2) 	,
 	notes	 		text 		,
 
 	PRIMARY KEY 	(ID),

@@ -76,13 +76,298 @@ PREPARE insertARobotInMatch (varchar(20), varchar(10), char(2)) AS
 -- EXECUTE insertARobotInMatch('2023WASNO_qmm1', 'frc2930', 'R1');
 
 
+
+
 -----------------------------------------------------------------
 --   Statements for inserting records while scouting a match   --
 -----------------------------------------------------------------
 
+/*
+ *	Query for getting all the competitions that have been 
+ * 	loaded to the DB to display the events that can be scoutied
+ * 	-- use this if we want to show all comps regardless of if 
+ * 	there is loaded matches or not 
+ */ 
+PREPARE getCompetitions AS
+	SELECT * 
+	FROM Competition;
+
+-- example execute:
+-- EXECUTE getCompetitions;
+
+
+
+
+/*
+ *	Query for getting all the competitions that have been 
+ * 	loaded to the DB and have at least one robot in match entered
+ *  	to display the events that can be scoutied
+ * 	-- use this if we only want to show comps that 
+ * 	have loaded matches  
+ */ 
+PREPARE getCompetitionWithMatchSchedules AS
+	SELECT Competition.TBAKey, Competition.name, Competition.startdate
+	FROM Competition
+		JOIN Match ON (Competition.TBAKey = Match.competitionTBAKey)
+		JOIN RobotInMatch ON (Match.TBAKey = RobotInMatch.MatchTBAKey);
+
+-- example execute:
+-- EXECUTE getCompetitionWithMatchSchedules;
+
+
+
+
+/*
+ *	Query for getting all robot in matches for a particular 
+ * 	competition and alliance station to display the matches that
+ * 	can be scouted and the robots to be scouted for that match 
+ * 	-- needs the compKey and the alliance station ID
+ */ 
+PREPARE getRobotInMatchesForAllianceStation (varchar(12), char(2)) AS
+	SELECT 	RobotInMatch.ID AS "RobotInMatchID",
+		MatchType.name || ' ' || Match.number AS "Match Number",
+		Robot.number AS "Team Number"
+	FROM RobotInMatch
+		JOIN Match ON (RobotInMatch.matchTBAKey = Match.TBAKey)
+		JOIN MatchType ON (Match.matchTypeID = MatchType.ID)
+		JOIN Robot ON (RobotInMatch.RobotTBAKey = Robot.TBAKey)
+	WHERE Match.competitionTBAKey = $1 AND
+		RobotInMatch.allianceStationID = $2;
+
+-- example execute:
+-- EXECUTE getRobotInMatchesForAllianceStation('2023WASNO', 'R1');
+
+
+
+
+/*
+ *	inserting a new scout record for a selected robot in match
+ * 	to use to gather all the data about the robot that this particular
+ * 	scout collects 
+ * 	- needs the ID of the robotInMatch 
+ */ 
+PREPARE insertAScout (integer) AS
+	INSERT INTO Scout (robotInMatchID)
+	VALUES ($1)
+	RETURNING ID;
+
+-- example execute:
+-- EXECUTE insertAScout(1);
+
+
+/*
+ *	updating the preloaded piece attribute for a scout record 
+ * 	to collect the type of piece that was preloaded in a given 
+ * 	robot in match 
+ * 	-- needs a scoutID and a gamePieceID
+ */ 
+PREPARE updatePreloadedPiece (integer, varchar(2)) AS
+	UPDATE Scout
+	SET preloadedPieceId = $2	
+	WHERE Scout.ID = $1;
+
+-- example execute:
+-- EXECUTE updatePreloadedPiece(1, 'CN');
+
+
+
+/*
+ *	insert a new start event record for the current scout record
+ * 	to signify that the scout has started scouting the match 
+ * 	-- needs a scoutID
+ */
+PREPARE insertStartEvent (integer) AS	
+	INSERT INTO StartFinishEvent (scoutID, startFinishTypeID, timeOccurred)
+	VALUES ($1, 'S', CURRENT_TIMESTAMP);
+
+-- example execute:
+-- EXECUTE insertStartEvent(1);
+
+
+
+/*
+ *	insert a new pickUpGamePieceEvent record for the current scout record
+ * 	to signify that the robot the scout is watching has picked
+ *	up a game piece 
+ * 	-- needs a scout ID, a match period, a game peice, and a pickup location 
+ */
+PREPARE insertPickUpGamePieceEvent (integer, varchar(2), varchar(2), varchar(2)) AS	
+	INSERT INTO PickUpGamePieceEvent (scoutID, matchPeriodID, gamePieceID, 
+		pickupLocationID, timeOccurred)
+	VALUES ($1, $2, $3, $4, CURRENT_TIMESTAMP);
+
+-- example execute:
+-- EXECUTE insertPickUpGamePieceEvent(1, 'T', 'CN', 'DS');
+
+
+
+
+/*
+ *	insert a new scoreGamePieceEvent record for the current scout record
+ * 	to signify that the robot the scout is watching has scored
+ *  	a game piece 
+ * 	-- needs a scout ID, a match period, a game peice, and a scoring location
+ */
+PREPARE insertScoreGamePieceEvent (integer, varchar(2), varchar(2), varchar(2)) AS	
+	INSERT INTO ScoreGamePieceEvent (scoutID, matchPeriodID, gamePieceID, 
+		scoringLocationID, timeOccurred)
+	VALUES ($1, $2, $3, $4, CURRENT_TIMESTAMP);
+
+-- example execute:
+-- EXECUTE insertScoreGamePieceEvent(1, 'A', 'CN', 'H7');
+
+
+
+
+/*
+ *	insert a new scoreWithoutGamePieceEvent record for the current scout 
+ *	record to signify that the robot the scout is watching has scored
+ *  	points without using a game peice 
+ * 	-- needs a scout ID, a match period, and a scoring type
+ */
+PREPARE insertScoreWithoutGamePieceEvent (integer, varchar(2), varchar(2)) AS	
+	INSERT INTO ScoreWithoutGamePieceEvent (scoutID, matchPeriodID,
+		nonGamePieceScoringTypeID, timeOccurred)
+	VALUES ($1, $2, $3, CURRENT_TIMESTAMP);
+
+-- example execute:
+-- EXECUTE insertScoreWithoutGamePieceEvent(1, 'A', 'EG');
+
+
+
+/*
+ *	insert a new FaultEvent record for the current scout 
+ *	record to signify that the robot the scout is watching has 
+ *  	made some sort of mistake or undesireable action  
+ * 	-- needs a scoutID, a match period, and a fault Type
+ */
+
+PREPARE insertFaultEvent (integer, varchar(2), varchar(2)) AS	
+	INSERT INTO faultEvent (scoutID, matchPeriodID,
+		faultTypeID, timeOccurred)
+	VALUES ($1, $2, $3, CURRENT_TIMESTAMP);
+
+-- example execute:
+-- EXECUTE insertFaultEvent(1, 'A', 'DC');
+
+
+
+
+/*
+ *	insert a new finish event record for the current scout record
+ * 	to signify that the scout has finished scouting the match 
+ * 	-- needs a scoutID
+ */
+PREPARE insertFinishEvent (integer) AS	
+	INSERT INTO StartFinishEvent (scoutID, startFinishTypeID, timeOccurred)
+	VALUES ($1, 'F', CURRENT_TIMESTAMP);
+
+-- example execute:
+-- EXECUTE insertFinishEvent(1);
+
+
+
+
+/*
+ *	updating the notes attribute for a scout record 
+ * 	to collect any notes that a scout have about a 
+ * 	robot in match 
+ * 	-- need a scout ID and the note
+ */ 
+
+PREPARE updateNotes (integer, text) AS
+	UPDATE Scout
+	SET notes = $2	
+	WHERE Scout.ID = $1;
+
+-- example execute:
+-- EXECUTE updateNotes(1, 'They were getting heavily defended');
 
 
 
 -----------------------------------------------------------------
 --   Statements for getting information from collected data    --
 -----------------------------------------------------------------
+
+
+/*
+ *	Query for getting all the competitions that have been 
+ * 	loaded to the DB to display the events that can be queried 
+ * 	for data 
+ * 	-- use this if we want to show all comps regardless of if 
+ * 	there is data or not 
+ *	-- same as query in above section about getting competitions
+ */ 
+PREPARE getCompetitions AS
+	SELECT * 
+	FROM Competition;
+
+
+/*
+ *	Query for getting all the competitions that have been 
+ * 	loaded to the DB and have at least one scout entity entered
+ *  	to display the events that can be scoutied queried for data
+ * 	-- use this if we only want to show comps that 
+ * 	have some data 
+ */ 
+PREPARE getCompetitionWithMatchData AS
+	SELECT Competition.TBAKey, Competition.name, Competition.startdate
+	FROM Competition
+		JOIN Match ON (Competition.TBAKey = Match.competitionTBAKey)
+		JOIN RobotInMatch ON (Match.TBAKey = RobotInMatch.MatchTBAKey)
+		JOIN Scout ON (RobotInMatch.ID = Scout.RobotInMatchID);
+
+-- example execute:
+-- EXECUTE getCompetitionWithMatchData;
+
+/*
+ *	Query for calculating the average points scored 
+ * 	during a single competition for a single robot at 
+ * 	the compeition 
+ */ 
+
+
+/*
+ *	Query for calculating the average points scored 
+ * 	during a single competition for a every robot at the 
+ * 	compeititon
+ */ 
+
+
+/*
+ * 	Query for ranking robots according to 
+ * 	a specified game peice and level
+ */ 
+
+
+/*
+ * 	Query for ranking robots according to 
+ * 	a specified non-game piece scoring type
+ */ 
+
+
+/*
+ *	Query for categorizing robots
+ */ 
+
+
+/*
+ *	Query for getting data to suggest who to team up with
+ */ 
+
+
+/*
+ * 	Query for all of a team's auto's sumarized 
+ */ 
+
+
+
+/*
+ * 	Query for total cubes, total cones, total high, total medium, total low 
+ * 	total ground pickup, total station pickup, total auto engage, total tele engage 
+ */ 
+
+
+
+
+
