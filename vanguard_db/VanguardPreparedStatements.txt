@@ -1,5 +1,4 @@
 /*
- *
  *  File: 	VanguardPreparedStatements.txt	
  *
  *  Purpose: 	Documents the prepared commands for creating 
@@ -368,6 +367,8 @@ PREPARE getCompetitionWithMatchData AS
  */ 
 
 
+	GROUP BY MatchTBAKey 
+GROUP BY Team 
 
 
 
