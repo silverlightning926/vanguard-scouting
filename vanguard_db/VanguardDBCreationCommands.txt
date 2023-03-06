@@ -489,6 +489,7 @@ INSERT INTO FaultType (ID, name)
 VALUES 	('NS', 'No Show'),
 	('DA', 'Disable'),
 	('DC', 'Disconnect'),
+	('DP', 'Drop Piece'),
 	('FA', 'Fall Over'),
 	('FL', 'Foul'),
 	('TF', 'Tech Foul');

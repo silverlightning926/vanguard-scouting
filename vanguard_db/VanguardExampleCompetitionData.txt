@@ -1,0 +1,551 @@
+/*
+ *  File: 	VanguardExampleCompetitionData.txt	
+ *
+ *  Purpose: 	Contains commands for entering in 
+ * 		some test competition data   
+ *		that can be used to test the app 
+ * 		and demonstrate the application  
+ *  		NOTE: does not insert useful timestamps
+ * 		so can not be used to test timestamps 
+ * 		NOTE: Assumes no other matches have been 
+ * 		added into the DB!
+ *  
+ *  Author: 	Cordelia Notbohm
+ *  Version: 	1.1.0
+ *  Date:    	3/5/23
+ *
+ */
+
+
+-------------------------------------------------------------
+--     Prepare statements to make this more readable       --
+-------------------------------------------------------------
+
+/*
+ *	Inserting a new robot record for a given FRC team 
+ */ 
+PREPARE insertARobot (varchar(10), varchar(6), varchar(60)) AS 
+	INSERT INTO Robot (TBAKey, number, name)
+	VALUES ($1, $2, $3);
+
+
+/*
+ *	Inserting a new competition record for a given competition
+ */ 
+PREPARE insertACompetition (varchar(12), varchar(120), date) AS 
+	INSERT INTO Competition (TBAKey, name, startDate)
+	VALUES ($1, $2, $3);
+
+
+/*
+ *	Inserting a new match record for a given match 
+ */ 
+PREPARE insertAMatch (varchar(20), varchar(12), varchar(2), varchar(3)) AS 
+	INSERT INTO Match (TBAKey, competitionTBAKey, matchTypeID, number)
+	VALUES ($1, $2, $3, $4);
+
+
+/*
+ *	Inserting a new RobotInMatch record to record a robot 
+ * 	Being scheduled for a particular match  
+ */ 
+PREPARE insertARobotInMatch (varchar(20), varchar(10), char(2)) AS 
+	INSERT INTO RobotInMatch (matchTBAKey, robotTBAKey, allianceStationID)
+	VALUES ($1, $2, $3);
+
+
+/*
+ *	inserting a new scout record for a selected robot in match
+ * 	to use to gather all the data about the robot that this particular
+ * 	scout collects 
+ * 	- needs the ID of the robotInMatch 
+ */ 
+PREPARE insertAScout (integer) AS
+	INSERT INTO Scout (robotInMatchID)
+	VALUES ($1)
+	RETURNING ID;
+
+
+/*
+ *	updating the preloaded piece attribute for a scout record 
+ * 	to collect the type of piece that was preloaded in a given 
+ * 	robot in match 
+ * 	-- needs a scoutID and a gamePieceID
+ */ 
+PREPARE updatePreloadedPiece (integer, varchar(2)) AS
+	UPDATE Scout
+	SET preloadedPieceId = $2	
+	WHERE Scout.ID = $1;
+
+
+/*
+ *	insert a new start event record for the current scout record
+ * 	to signify that the scout has started scouting the match 
+ * 	-- needs a scoutID
+ */
+PREPARE insertStartEvent (integer) AS	
+	INSERT INTO StartFinishEvent (scoutID, startFinishTypeID, timeOccurred)
+	VALUES ($1, 'S', CURRENT_TIMESTAMP);
+
+
+/*
+ *	insert a new pickUpGamePieceEvent record for the current scout record
+ * 	to signify that the robot the scout is watching has picked
+ *	up a game piece 
+ * 	-- needs a scout ID, a match period, a game peice, and a pickup location 
+ */
+PREPARE insertPickUpGamePieceEvent (integer, varchar(2), varchar(2), varchar(2)) AS	
+	INSERT INTO PickUpGamePieceEvent (scoutID, matchPeriodID, gamePieceID, 
+		pickupLocationID, timeOccurred)
+	VALUES ($1, $2, $3, $4, CURRENT_TIMESTAMP);
+
+
+/*
+ *	insert a new scoreGamePieceEvent record for the current scout record
+ * 	to signify that the robot the scout is watching has scored
+ *  	a game piece 
+ * 	-- needs a scout ID, a match period, a game peice, and a scoring location
+ */
+PREPARE insertScoreGamePieceEvent (integer, varchar(2), varchar(2), varchar(2)) AS	
+	INSERT INTO ScoreGamePieceEvent (scoutID, matchPeriodID, gamePieceID, 
+		scoringLocationID, timeOccurred)
+	VALUES ($1, $2, $3, $4, CURRENT_TIMESTAMP);
+
+
+/*
+ *	insert a new scoreWithoutGamePieceEvent record for the current scout 
+ *	record to signify that the robot the scout is watching has scored
+ *  	points without using a game peice 
+ * 	-- needs a scout ID, a match period, and a scoring type
+ */
+PREPARE insertScoreWithoutGamePieceEvent (integer, varchar(2), varchar(2)) AS	
+	INSERT INTO ScoreWithoutGamePieceEvent (scoutID, matchPeriodID,
+		nonGamePieceScoringTypeID, timeOccurred)
+	VALUES ($1, $2, $3, CURRENT_TIMESTAMP);
+
+
+/*
+ *	insert a new FaultEvent record for the current scout 
+ *	record to signify that the robot the scout is watching has 
+ *  	made some sort of mistake or undesireable action  
+ * 	-- needs a scoutID, a match period, and a fault Type
+ */
+
+PREPARE insertFaultEvent (integer, varchar(2), varchar(2)) AS	
+	INSERT INTO faultEvent (scoutID, matchPeriodID,
+		faultTypeID, timeOccurred)
+	VALUES ($1, $2, $3, CURRENT_TIMESTAMP);
+
+
+/*
+ *	insert a new finish event record for the current scout record
+ * 	to signify that the scout has finished scouting the match 
+ * 	-- needs a scoutID
+ */
+PREPARE insertFinishEvent (integer) AS	
+	INSERT INTO StartFinishEvent (scoutID, startFinishTypeID, timeOccurred)
+	VALUES ($1, 'F', CURRENT_TIMESTAMP);
+
+
+/*
+ *	updating the notes attribute for a scout record 
+ * 	to collect any notes that a scout have about a 
+ * 	robot in match 
+ * 	-- need a scout ID and the note
+ */ 
+
+PREPARE updateNotes (integer, text) AS
+	UPDATE Scout
+	SET notes = $2	
+	WHERE Scout.ID = $1;
+
+
+
+--------------------------------------------------------------
+--   Adding the compeitition, teams, and match schedule     --
+--------------------------------------------------------------
+
+/*
+ * Example competition: 2023WATEST, Example Compeititon, 3-11-23
+ * Teams: 		949  Wolverine Robotics
+ * 			1318 Issaquah Robotics Society 
+ * 			2522 Royal Robotics 
+ * 			2910 Jack in the Bot 
+ * 			2930 Sonic Squirrels 
+ * 			4131 Iron Patriots
+ * 			4512 Otter Chaos 
+ * 			4682 CyBears
+ * 			4089 Stealth Robotics 
+ * 			8248 ChainLynx
+ *
+ * 
+ * 	Match Schedule:
+ * M#	RED1 	RED2 	RED3		BLUE1 	BLUE2 	BLUE3
+ * 1	2930 	8248 	4131 		949 	1318 	2910
+ * 2	2522 	4512	4682		1318	2930  	4089
+ * 3 	2910 	2930 	4089            4131  	8248    2522
+ * 4	8248	2910	2522		1318	4512    4682
+ * 5	949	4089	8248		2910	4131	4682
+ * 6	4512	1318	949		4089 	2522 	2930
+ * 
+ * 
+
+
+/*
+ *  	Adding the competition
+ */
+
+EXECUTE insertACompetition ('2023WATEST', 'Example Compeititon', '3-11-23');
+
+/*
+ *  	Adding the Robots
+ */
+EXECUTE insertARobot ('frc949', '949', 'Wolverine Robotics');
+EXECUTE insertARobot ('frc1318', '1318', 'Issaquah Robotics Society');
+EXECUTE insertARobot ('frc2522', '2522', 'Royal Robotics');
+EXECUTE insertARobot ('frc2910', '2910', 'Jack in the Bot');
+EXECUTE insertARobot ('frc2930', '2930', 'Sonic Squirrels');
+EXECUTE insertARobot ('frc4131', '4131', 'Iron Patriots');
+EXECUTE insertARobot ('frc4512', '4512', 'Otter Chaos');
+EXECUTE insertARobot ('frc4682', '4682', 'CyBears');
+EXECUTE insertARobot ('frc4089', '4089', 'Stealth Robotics');
+EXECUTE insertARobot ('frc8248', '8248', 'ChainLynx');
+
+/*
+ *  	Adding the matches 
+ */
+insertAMatch('2023WATEST_qmm1', '2023WATEST', 'Q', '1');
+insertAMatch('2023WATEST_qmm2', '2023WATEST', 'Q', '2');
+insertAMatch('2023WATEST_qmm3', '2023WATEST', 'Q', '3');
+insertAMatch('2023WATEST_qmm4', '2023WATEST', 'Q', '4');
+insertAMatch('2023WATEST_qmm5', '2023WATEST', 'Q', '5');
+insertAMatch('2023WATEST_qmm6', '2023WATEST', 'Q', '6');
+
+
+/*
+ *  	Adding the RobotInMatches 
+ */
+EXECUTE insertARobotInMatch('2023WATEST_qmm1', 'frc2930', 'R1');
+EXECUTE insertARobotInMatch('2023WATEST_qmm1', 'frc8248', 'R2');
+EXECUTE insertARobotInMatch('2023WATEST_qmm1', 'frc4131', 'R3');
+EXECUTE insertARobotInMatch('2023WATEST_qmm1', 'frc949', 'B1');
+EXECUTE insertARobotInMatch('2023WATEST_qmm1', 'frc1318', 'B2');
+EXECUTE insertARobotInMatch('2023WATEST_qmm1', 'frc2910', 'B3');
+
+EXECUTE insertARobotInMatch('2023WATEST_qmm2', 'frc2522', 'R1');
+EXECUTE insertARobotInMatch('2023WATEST_qmm2', 'frc4512', 'R2');
+EXECUTE insertARobotInMatch('2023WATEST_qmm2', 'frc4682', 'R3');
+EXECUTE insertARobotInMatch('2023WATEST_qmm2', 'frc1318', 'B1');
+EXECUTE insertARobotInMatch('2023WATEST_qmm2', 'frc2930', 'B2');
+EXECUTE insertARobotInMatch('2023WATEST_qmm2', 'frc4089', 'B3');
+
+EXECUTE insertARobotInMatch('2023WATEST_qmm3', 'frc2910', 'R1');
+EXECUTE insertARobotInMatch('2023WATEST_qmm3', 'frc2930', 'R2');
+EXECUTE insertARobotInMatch('2023WATEST_qmm3', 'frc4089', 'R3');
+EXECUTE insertARobotInMatch('2023WATEST_qmm3', 'frc4131', 'B1');
+EXECUTE insertARobotInMatch('2023WATEST_qmm3', 'frc8248', 'B2');
+EXECUTE insertARobotInMatch('2023WATEST_qmm3', 'frc2522', 'B3');
+
+EXECUTE insertARobotInMatch('2023WATEST_qmm4', 'frc8248', 'R1');
+EXECUTE insertARobotInMatch('2023WATEST_qmm4', 'frc2910', 'R2');
+EXECUTE insertARobotInMatch('2023WATEST_qmm4', 'frc2522', 'R3');
+EXECUTE insertARobotInMatch('2023WATEST_qmm4', 'frc1318', 'B1');
+EXECUTE insertARobotInMatch('2023WATEST_qmm4', 'frc4512', 'B2');
+EXECUTE insertARobotInMatch('2023WATEST_qmm4', 'frc4682', 'B3');
+
+EXECUTE insertARobotInMatch('2023WATEST_qmm5', 'frc949', 'R1');
+EXECUTE insertARobotInMatch('2023WATEST_qmm5', 'frc4089', 'R2');
+EXECUTE insertARobotInMatch('2023WATEST_qmm5', 'frc8248', 'R3');
+EXECUTE insertARobotInMatch('2023WATEST_qmm5', 'frc2910', 'B1');
+EXECUTE insertARobotInMatch('2023WATEST_qmm5', 'frc4131', 'B2');
+EXECUTE insertARobotInMatch('2023WATEST_qmm5', 'frc4682', 'B3');
+
+EXECUTE insertARobotInMatch('2023WATEST_qmm6', 'frc4512', 'R1');
+EXECUTE insertARobotInMatch('2023WATEST_qmm6', 'frc1318', 'R2');
+EXECUTE insertARobotInMatch('2023WATEST_qmm6', 'frc949', 'R3');
+EXECUTE insertARobotInMatch('2023WATEST_qmm6', 'frc4089', 'B1');
+EXECUTE insertARobotInMatch('2023WATEST_qmm6', 'frc2522', 'B2');
+EXECUTE insertARobotInMatch('2023WATEST_qmm6', 'frc2930', 'B3');
+
+
+
+--------------------------------------------------------------
+--               Adding the Match Data                      --
+--------------------------------------------------------------
+
+/*
+ * 	Match data entered in team order for consistency and 
+ * 	Easy query correctness checking 
+ * 	NOTE - The timestamps will not be useful
+ */
+
+
+/*
+ *  	Adding data for 949 Wolverine Robotics
+ * 	only cones (more mid)
+ */
+
+-- M1 B1 (scout1)
+
+EXECUTE insertAScout(4);
+
+
+-- M5 R1 (scout2)
+
+EXECUTE insertAScout(25);
+
+
+-- M6 R3 (scout3)
+
+EXECUTE insertAScout(33);
+
+
+
+
+/*
+ *  	Adding data for 1318 Issaquah Robotics Society 
+ * 	better at cones - high and med (more mid)
+ */
+
+-- M1 B2 (scout4)
+
+EXECUTE insertAScout(5);
+
+
+-- M2 B1 (scout5)
+
+EXECUTE insertAScout(10);
+
+
+-- M4 B1 (scout6)
+
+EXECUTE insertAScout(22);
+
+
+-- M6 R2 (scout7)
+
+EXECUTE insertAScout(32);
+
+
+
+
+/*
+ *  	Adding data for 2522 Royal Robotics 
+ * 	better at cones
+ * 	high mid (more mid)
+ */
+
+-- M2 R1 (scout8)
+
+EXECUTE insertAScout(7);
+
+
+-- M3 B3 (scout9)
+
+EXECUTE insertAScout(18);
+
+
+-- M4 R3 (scout10)
+
+EXECUTE insertAScout(21);
+
+
+-- M6 B2 (scout11)
+
+EXECUTE insertAScout(35);
+
+
+
+
+
+/*
+ *  	Adding data for 2910 Jack in the Bot
+ * 	Amazing (mostly high)
+ */
+
+-- M1 B3 (scout12)
+
+EXECUTE insertAScout(6);
+EXECUTE updatePreloadedPiece(12, 'CN');
+EXECUTE insertStartEvent(12);
+EXECUTE insertScoreGamePieceEvent(12, 'A', 'CN', 'H1');
+EXECUTE insertScoreWithoutGamePieceEvent(12, 'A', 'MB');
+EXECUTE insertPickUpGamePieceEvent(12, 'A', 'CB', 'G');
+EXECUTE insertFaultEvent(12, 'A', 'DP');
+EXECUTE insertScoreWithoutGamePieceEvent(12, 'A', 'DK');
+EXECUTE insertScoreWithoutGamePieceEvent(12, 'A', 'EG');
+EXECUTE insertPickUpGamePieceEvent(12, 'T', 'CN', 'DS');
+EXECUTE insertScoreGamePieceEvent(12, 'T', 'CN', 'H3');
+EXECUTE insertPickUpGamePieceEvent(12, 'T', 'CN', 'DS');
+EXECUTE insertScoreGamePieceEvent(12, 'T', 'CN', 'H4');
+EXECUTE insertPickUpGamePieceEvent(12, 'T', 'CN', 'DS');
+EXECUTE insertScoreGamePieceEvent(12, 'T', 'CN', 'H6');
+EXECUTE insertPickUpGamePieceEvent(12, 'T', 'CN', 'DS');
+EXECUTE insertScoreGamePieceEvent(12, 'T', 'CN', 'H7');
+EXECUTE insertScoreWithoutGamePieceEvent(12, 'T', 'DK');
+
+-- M3 R1 (scout13)
+
+EXECUTE insertAScout(13);
+
+
+-- M4 R2 (scout14)
+
+EXECUTE insertAScout(20);
+
+
+-- M5 B1 (scout15)
+
+EXECUTE insertAScout(28);
+
+
+
+
+/*
+ *  	Adding data for 2930 Sonic Squirrels 
+ * 	worse at cubes than cones (more high)
+ */
+
+-- M1 R1 (scout16)
+
+EXECUTE insertAScout(1);
+
+
+-- M2 B2 (scout17)
+
+EXECUTE insertAScout(11);
+
+
+-- M3 R2 (scout18)
+
+EXECUTE insertAScout(14);
+
+
+-- M6 B3 (scout19)
+ 
+EXECUTE insertAScout(36);
+
+
+
+
+/*
+ *  	Adding data for 4131 Iron Patriots
+ * 	better at cubes than cones (more high)
+ * 
+ */
+
+-- M1 R3 (scout20)
+
+EXECUTE insertAScout(3);
+
+
+-- M3 B1 (scout21)
+
+EXECUTE insertAScout(16);
+
+
+-- M5 B2 (scout22)
+
+EXECUTE insertAScout(29);
+
+
+
+
+/*
+ *  	Adding data for 4512 Otter Chaos 
+ * 	No Manipulator - only low mostly cubes
+ */
+
+-- M2 R2 (scout23)
+
+EXECUTE insertAScout(8);
+
+
+-- M4 B2 (scout24)
+
+EXECUTE insertAScout(23);
+
+
+-- M6 R1 (scout25)
+
+EXECUTE insertAScout(31);
+
+
+
+
+/*
+ *  	Adding data for 4682 CyBears
+ * 	better at cones then cubes
+ * 	med and low (more mid)
+ */
+
+-- M2 R3 (scout26)
+
+EXECUTE insertAScout(9);
+
+
+-- M4 B3 (scout27)
+
+EXECUTE insertAScout(24);
+
+
+-- M5 B3 (scout28)
+
+EXECUTE insertAScout(30);
+
+
+
+
+/*
+ *  	Adding data for 4089 Stealth Robotics 
+ * 	
+ *  
+ */
+
+-- M2 B3 (scout29)
+
+EXECUTE insertAScout(12);
+
+
+-- M3 R3 (scout30)
+
+EXECUTE insertAScout(15);
+
+
+-- M5 R2 (scout31)
+
+EXECUTE insertAScout(26);
+
+
+-- M6 B1 (scout32)
+
+EXECUTE insertAScout(34);
+
+
+
+
+/*
+ *  	Adding data for 8248 ChainLynx
+ * 	only cubes
+ * 	low and med (more low)
+ */
+
+-- M1 R2 (scout33)
+
+EXECUTE insertAScout(2);
+
+
+-- M2 B2 (scout34)
+
+EXECUTE insertAScout(11);
+
+
+-- M4 R1 (scout35)
+
+EXECUTE insertAScout(19);
+
+
+-- M5 R3 (scout36)
+
+EXECUTE insertAScout(27);
+
