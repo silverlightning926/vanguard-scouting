@@ -332,6 +332,16 @@ PREPARE getCompetitionWithMatchData AS
  * 	compeititon
  */ 
 
+/*
+ * 	for a single robot 
+ * 	for each of there matches, how did they contribute to the total score 
+ */
+
+
+ /*	
+	* how a robot scores improved 
+	*/
+
 
 /*
  * 	Query for ranking robots according to 
@@ -360,15 +370,36 @@ PREPARE getCompetitionWithMatchData AS
  */ 
 
 
-
 /*
  * 	Query for total cubes, total cones, total high, total medium, total low 
  * 	total ground pickup, total station pickup, total auto engage, total tele engage 
  */ 
 
-
-	GROUP BY MatchTBAKey 
-GROUP BY Team 
+	
 
 
+/*
+ * Query for average cones scored per match for each robot 
+ */ 
+
+SELECT Robot.number, ROUND(AVG(conesInAMatch), 2) AS "Average Cones Scored"
+FROM Robot
+	JOIN (
+	-- averages the total score cone events for all the 
+	-- scouts that scouted the same robotInMatch 
+	SELECT RobotInMatch.id, RobotInMatch.robotTBAKey, AVG(totalCones) AS conesInAMatch
+	FROM RobotInMatch 
+		JOIN (
+ 		-- totals all of the score cone events that a single scout
+ 		-- added for a match 
+ 		SELECT Scout.id, Scout.robotInMatchID, COUNT (*) AS totalCones
+		FROM Scout
+			JOIN ScoreGamePieceEvent ON (Scout.id = ScoreGamePieceEvent.scoutid)
+		WHERE ScoreGamePieceEvent.gamePieceID = 'CN'
+		GROUP BY Scout.id
+	      	     ) AS ConesPerScout ON (RobotInMatch.ID = ConesPerScout.robotInMatchID)
+	GROUP BY RobotInMatch.id
+	      ) AS ConesPerMatch ON (Robot.TBAKey = ConesPerMatch.robotTBAKey)
+GROUP BY Robot.number
+ORDER BY Robot.number;
 

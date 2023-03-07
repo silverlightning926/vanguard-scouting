@@ -383,6 +383,7 @@ EXECUTE insertScoreGamePieceEvent(12, 'T', 'CN', 'H6');
 EXECUTE insertPickUpGamePieceEvent(12, 'T', 'CN', 'DS');
 EXECUTE insertScoreGamePieceEvent(12, 'T', 'CN', 'H7');
 EXECUTE insertScoreWithoutGamePieceEvent(12, 'T', 'DK');
+EXECUTE insertFinishEvent(12);
 
 -- M3 R1 (scout13)
 
