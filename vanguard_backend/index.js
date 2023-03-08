@@ -34,7 +34,7 @@ async function requestData(endpoint) {
 }
 
 app.get('/status', (req, res) => {
-    res.send('App is running')
+    res.status(200).json({ status: 'OK' });
 })
 
 app.get('/loadEvent/:eventKey', (req, res) => {
