@@ -204,20 +204,23 @@ app.post("/endMatch/:scoutid/", (req, res) => {
   pool.query(queryString, (error, response) => {
     if (error) {
       console.log(error);
+      res.sendStatus(500);
     } else {
-      res.status(200).json({ status: "OK" }).end();
+      res.sendStatus(200);
     }
   });
 });
 
 app.post("/addNotes/:scoutid", (req, res) => {
-  let queryString = `UPDATE scout SET notes = \'${req.body["notes"]}\' WHERE id = ${req.params.scoutid} RETURNING id as scoutid`;
+  let queryString = `UPDATE scout SET notes = \'${req.body["notes"]}\' WHERE id = ${req.params.scoutid}`;
   console.log(queryString);
   pool.query(queryString, (error, response) => {
     if (error) {
       console.log(error);
+      res.sendStatus(500);
     } else {
-      res.status(200).json(response.rows[0]).end();
+        
+      res.sendStatus(200);
     }
   });
 });
@@ -234,15 +237,16 @@ app.post(
       req.params.gamepiece +
       "', '" +
       req.params.pickuplocationid +
-      "', now()::timestamp(0)) RETURNING id as pickupid";
+      "', now()::timestamp(0))";
 
     console.log(queryString);
 
     pool.query(queryString, (error, response) => {
       if (error) {
         console.log(error);
+        res.sendStatus(500);
       } else {
-        res.status(200).json(response.rows[0]).end();
+        res.sendStatus(200);
       }
     });
   }
@@ -260,15 +264,16 @@ app.post(
       req.params.gamepiece +
       "', '" +
       req.params.scoringlocationid +
-      "', now()::timestamp(0)) RETURNING id as pickupid";
+      "', now()::timestamp(0))";
 
     console.log(queryString);
 
     pool.query(queryString, (error, response) => {
       if (error) {
         console.log(error);
+        res.sendStatus(500);
       } else {
-        res.status(200).json(response.rows[0]).end();
+        res.sendStatus(200);
       }
     });
   }
@@ -284,28 +289,30 @@ app.post(
       req.params.matchperiod +
       "', '" +
       req.params.scoringtype +
-      "', now()::timestamp(0)) RETURNING id as pickupid";
+      "', now()::timestamp(0))";
 
     console.log(queryString);
 
     pool.query(queryString, (error, response) => {
       if (error) {
         console.log(error);
+        res.sendStatus(500);
       } else {
-        res.status(200).json(response.rows[0]).end();
+        res.sendStatus(200);
       }
     });
   }
 );
 
 app.post("/addFault/:scoutid/:matchperiod/:faulttypeid", (req, res) => {
-  let queryString = `INSERT INTO faultevent (scoutid, matchperiodid, faulttypeid, timeoccurred) VALUES (${req.params.scoutid}, \'${req.params.matchperiod}\', \'${req.params.faulttypeid}\', now()::timestamp(0)) RETURNING id as faultid`;
+  let queryString = `INSERT INTO faultevent (scoutid, matchperiodid, faulttypeid, timeoccurred) VALUES (${req.params.scoutid}, \'${req.params.matchperiod}\', \'${req.params.faulttypeid}\', now()::timestamp(0))`;
 
   pool.query(queryString, (error, response) => {
     if (error) {
       console.log(error);
+      res.sendStatus(500);
     } else {
-      res.status(200).json(response.rows[0]).end();
+      res.sendStatus(200);
     }
   });
 });
