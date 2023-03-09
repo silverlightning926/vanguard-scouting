@@ -180,6 +180,26 @@ app.get("/getTeam/:matchtbakey/:alliancestationid", (req, res) => {
   });
 });
 
+app.post("/startMatch/:robotinmatchid/:preloadedpieceid", (req, res) => {
+  let queryString = `INSERT INTO scout (robotinmatchid, preloadedpieceid) VALUES (${req.params.robotinmatchid}, \'${req.params.preloadedpieceid}\') RETURNING id as scoutid`;
+  pool.query(queryString, (error, response) => {
+    if (error) {
+      console.log(error);
+    } else {
+      let scoutId = response.rows[0]["scoutid"];
+      let queryString = `INSERT INTO startfinishevent (scoutid, startfinishtypeid, timeoccurred) VALUES (${scoutId}, 'S',  now()::timestamp(0))`;
+      pool.query(queryString, (error, response) => {
+        if (error) {
+          console.log(error);
+        } else {
+          res.status(200).json(response.rows[0]);
+        }
+});
+    }
+  });
+});
+
+    if (error) {
 app.listen(port, () => {
   console.log(`App listening on port ${port}`);
 });
