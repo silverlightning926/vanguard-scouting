@@ -210,6 +210,18 @@ app.post("/endMatch/:scoutid/", (req, res) => {
   });
 });
 
+app.post("/addNotes/:scoutid", (req, res) => {
+  let queryString = `UPDATE scout SET notes = \'${req.body["notes"]}\' WHERE id = ${req.params.scoutid} RETURNING id as scoutid`;
+  console.log(queryString);
+  pool.query(queryString, (error, response) => {
+    if (error) {
+      console.log(error);
+    } else {
+      res.status(200).json(response.rows[0]).end();
+    }
+  });
+});
+
 app.listen(port, () => {
   console.log(`App listening on port ${port}`);
 });
