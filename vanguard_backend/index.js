@@ -222,6 +222,32 @@ app.post("/addNotes/:scoutid", (req, res) => {
   });
 });
 
+app.post(
+  "/pickUpGamePiece/:scoutid/:matchperiod/:gamepiece/:pickuplocationid",
+  (req, res) => {
+    let queryString =
+      "INSERT INTO pickupgamepieceevent (scoutid, matchperiodid, gamepieceid, pickuplocationid, timeoccurred) VALUES (" +
+      req.params.scoutid +
+      ", '" +
+      req.params.matchperiod +
+      "', '" +
+      req.params.gamepiece +
+      "', '" +
+      req.params.pickuplocationid +
+      "', now()::timestamp(0)) RETURNING id as pickupid";
+
+    console.log(queryString);
+
+    pool.query(queryString, (error, response) => {
+      if (error) {
+        console.log(error);
+      } else {
+        res.status(200).json(response.rows[0]).end();
+      }
+    });
+  }
+);
+
 app.listen(port, () => {
   console.log(`App listening on port ${port}`);
 });
