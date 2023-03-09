@@ -166,7 +166,7 @@ app.get("/loadEvent/:eventKey", (req, res) => {
     });
   });
 
-  res.send("Event loaded");
+  res.json({ status: "OK" }).end();
 });
 
 app.get("/getTeam/:matchtbakey/:alliancestationid", (req, res) => {
@@ -194,7 +194,7 @@ app.post("/startMatch/:robotinmatchid/:preloadedpieceid", (req, res) => {
         } else {
           res.status(200).json(response.rows[0]);
         }
-});
+      });
     }
   });
 });
