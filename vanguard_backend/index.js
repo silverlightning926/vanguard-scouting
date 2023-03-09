@@ -199,7 +199,17 @@ app.post("/startMatch/:robotinmatchid/:preloadedpieceid", (req, res) => {
   });
 });
 
+app.post("/endMatch/:scoutid/", (req, res) => {
+  let queryString = `INSERT INTO startfinishevent (scoutid, startfinishtypeid, timeoccurred) VALUES (${req.params.scoutid}, 'F',  now()::timestamp(0))`;
+  pool.query(queryString, (error, response) => {
     if (error) {
+      console.log(error);
+    } else {
+      res.status(200).json({ status: "OK" }).end();
+    }
+  });
+});
+
 app.listen(port, () => {
   console.log(`App listening on port ${port}`);
 });
