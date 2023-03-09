@@ -170,7 +170,7 @@ app.get("/loadEvent/:eventKey", (req, res) => {
 });
 
 app.get("/getTeam/:matchtbakey/:alliancestationid", (req, res) => {
-  let queryString = `SELECT robot.tbakey, robot.number, robot.name FROM robotinmatch JOIN robot ON (robotinmatch.robottbakey = robot.tbakey) WHERE robotinmatch.matchtbakey = \'${req.params.matchtbakey}\' AND robotinmatch.alliancestationid = \'${req.params.alliancestationid}\'`;
+  let queryString = `SELECT robotinmatch.id AS robotinmatchid, robot.tbakey, robot.number, robot.name FROM robotinmatch JOIN robot ON (robotinmatch.robottbakey = robot.tbakey) WHERE robotinmatch.matchtbakey = \'${req.params.matchtbakey}\' AND robotinmatch.alliancestationid = \'${req.params.alliancestationid}\'`;
   pool.query(queryString, (error, response) => {
     if (error) {
       console.log(error);
