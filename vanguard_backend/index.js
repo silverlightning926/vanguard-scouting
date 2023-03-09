@@ -248,6 +248,32 @@ app.post(
   }
 );
 
+app.post(
+  "/scoreGamePiece/:scoutid/:matchperiod/:gamepiece/:scoringlocationid",
+  (req, res) => {
+    let queryString =
+      "INSERT INTO scoregamepieceevent (scoutid, matchperiodid, gamepieceid, scoringlocationid, timeoccurred) VALUES (" +
+      req.params.scoutid +
+      ", '" +
+      req.params.matchperiod +
+      "', '" +
+      req.params.gamepiece +
+      "', '" +
+      req.params.scoringlocationid +
+      "', now()::timestamp(0)) RETURNING id as pickupid";
+
+    console.log(queryString);
+
+    pool.query(queryString, (error, response) => {
+      if (error) {
+        console.log(error);
+      } else {
+        res.status(200).json(response.rows[0]).end();
+      }
+    });
+  }
+);
+
 app.listen(port, () => {
   console.log(`App listening on port ${port}`);
 });
