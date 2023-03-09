@@ -274,6 +274,30 @@ app.post(
   }
 );
 
+app.post(
+  "/scoreNonGamePiece/:scoutid/:matchperiod/:scoringtype",
+  (req, res) => {
+    let queryString =
+      "INSERT INTO nongamepiecescoringevent (scoutid, matchperiodid, nongamepiecescoringtypeid, timeoccurred) VALUES (" +
+      req.params.scoutid +
+      ", '" +
+      req.params.matchperiod +
+      "', '" +
+      req.params.scoringtype +
+      "', now()::timestamp(0)) RETURNING id as pickupid";
+
+    console.log(queryString);
+
+    pool.query(queryString, (error, response) => {
+      if (error) {
+        console.log(error);
+      } else {
+        res.status(200).json(response.rows[0]).end();
+      }
+    });
+  }
+);
+
 app.listen(port, () => {
   console.log(`App listening on port ${port}`);
 });
