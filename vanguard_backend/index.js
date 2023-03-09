@@ -298,6 +298,18 @@ app.post(
   }
 );
 
+app.post("/addFault/:scoutid/:matchperiod/:faulttypeid", (req, res) => {
+  let queryString = `INSERT INTO faultevent (scoutid, matchperiodid, faulttypeid, timeoccurred) VALUES (${req.params.scoutid}, \'${req.params.matchperiod}\', \'${req.params.faulttypeid}\', now()::timestamp(0)) RETURNING id as faultid`;
+
+  pool.query(queryString, (error, response) => {
+    if (error) {
+      console.log(error);
+    } else {
+      res.status(200).json(response.rows[0]).end();
+    }
+  });
+});
+
 app.listen(port, () => {
   console.log(`App listening on port ${port}`);
 });
