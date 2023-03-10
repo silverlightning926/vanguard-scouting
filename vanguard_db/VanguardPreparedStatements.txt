@@ -53,12 +53,12 @@ PREPARE insertACompetition (varchar(12), varchar(120), date) AS
 /*
  *	Inserting a new match record for a given match 
  */ 
-PREPARE insertAMatch (varchar(20), varchar(12), varchar(2), varchar(3)) AS 
+PREPARE insertAMatch (varchar(20), varchar(12), varchar(2), integer) AS 
 	INSERT INTO Match (TBAKey, competitionTBAKey, matchTypeID, number)
 	VALUES ($1, $2, $3, $4);
 
 -- example execute:
--- EXECUTE insertAMatch('2023WASNO_qmm1', '2023WASNO', 'Q', '1');
+-- EXECUTE insertAMatch('2023WASNO_qmm1', '2023WASNO', 'Q', 1);
 
 
 

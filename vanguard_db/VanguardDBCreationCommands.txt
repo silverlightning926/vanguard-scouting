@@ -94,7 +94,7 @@ CREATE TABLE Match (
 	TBAKey  		varchar(20) 	NOT NULL,
 	competitionTBAKey 	varchar(12) 	NOT NULL,
 	matchTypeID 		varchar(2) 	NOT NULL,
-	number 			varchar(3) 	NOT NULL,
+	number 			integer 	NOT NULL,
 
 	PRIMARY KEY 	(TBAKey),
 	FOREIGN KEY 	(competitionTBAKey) REFERENCES Competition(TBAKey)
@@ -489,7 +489,6 @@ INSERT INTO FaultType (ID, name)
 VALUES 	('NS', 'No Show'),
 	('DA', 'Disable'),
 	('DC', 'Disconnect'),
-	('DP', 'Drop Piece'),
 	('FA', 'Fall Over'),
 	('FL', 'Foul'),
 	('TF', 'Tech Foul');
@@ -586,6 +585,15 @@ VALUES 	('MB', 'Mobility'),
 	('PK', 'Park'),
 	('DK', 'Dock'),
 	('EG', 'Engage');
+
+
+/*
+ * 	FaultType values 
+ */
+INSERT INTO FaultType (ID, name)
+VALUES 	('DN', 'Drop Cone'),
+	('DB', 'Drop Cube'),
+	('FD', 'Fail To Dock');
 
 
 
