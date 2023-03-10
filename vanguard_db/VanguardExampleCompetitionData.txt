@@ -1027,9 +1027,9 @@ EXECUTE insertScoreWithoutGamePieceEvent(33, 'T', 'EG');
 EXECUTE insertFinishEvent(33);
 
 
--- M2 B2 (scout34)
+-- M3 B2 (scout34)
 
-EXECUTE insertAScout(11);
+EXECUTE insertAScout(17);
 EXECUTE updatePreloadedPiece(34, 'CB');
 EXECUTE insertStartEvent(34);
 EXECUTE insertScoreGamePieceEvent(34, 'T', 'CB', 'L9');

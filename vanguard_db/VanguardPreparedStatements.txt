@@ -411,17 +411,17 @@ ORDER BY "Average Cones Scored" DESC;
  * Query for average cubes scored per match for each robot 
  */ 
 
-SELECT Robot.number, ROUND(AVG(conesInAMatch), 2) AS "Average Cubes Scored"
+SELECT Robot.number, ROUND(AVG(cubesInAMatch), 2) AS "Average Cubes Scored"
 FROM Robot
 	LEFT JOIN (
 	-- averages the total score cone events for all the 
 	-- scouts that scouted the same robotInMatch 
-	SELECT RobotInMatch.id, RobotInMatch.robotTBAKey, COALESCE(AVG(totalCones),0) AS conesInAMatch
+	SELECT RobotInMatch.id, RobotInMatch.robotTBAKey, COALESCE(AVG(totalCubes),0) AS cubesInAMatch
 	FROM RobotInMatch 
 		LEFT JOIN (
  		-- totals all of the score cone events that a single scout
  		-- added for a match 
- 		SELECT Scout.id, Scout.robotInMatchID, COALESCE(COUNT(ScoreGamePieceEvent.ID), 0) AS totalCones
+ 		SELECT Scout.id, Scout.robotInMatchID, COALESCE(COUNT(ScoreGamePieceEvent.ID), 0) AS totalCubes
 		FROM Scout
 			LEFT JOIN ScoreGamePieceEvent ON (Scout.id = ScoreGamePieceEvent.scoutid)
 		WHERE ScoreGamePieceEvent.gamePieceID = 'CB'
@@ -432,4 +432,40 @@ FROM Robot
 GROUP BY Robot.number
 ORDER BY "Average Cubes Scored" DESC;
 
+
+
+/*
+ * Query for average cones, and cubes scored per match for each robot 
+ */ 
+
+SELECT Robot.number, ROUND(AVG(conesInAMatch), 2) AS "Average Cones Scored",
+		 ROUND(AVG(cubesInAMatch), 2) AS "Average Cubes Scored"
+FROM Robot
+	LEFT JOIN (
+
+	-- averages the total score cone events for all the 
+	-- scouts that scouted the same robotInMatch 
+	SELECT RobotInMatch.id, RobotInMatch.robotTBAKey, 
+		COALESCE(AVG(totalCones),0) AS conesInAMatch,
+		COALESCE(AVG(totalCubes),0) AS cubesInAMatch
+	FROM RobotInMatch 
+		LEFT JOIN (
+
+ 		-- totals all of the score cone events that a single scout
+ 		-- added for a match 
+ 		SELECT Scout.id, Scout.robotInMatchID, 
+			COALESCE(COUNT(ScoreGamePieceEvent.gamePieceID = 'CN' OR NULL), 0) 
+			AS totalCones,
+			COALESCE(COUNT(ScoreGamePieceEvent.gamePieceID = 'CB' OR NULL), 0) 
+			AS totalCubes
+		FROM Scout
+			LEFT JOIN ScoreGamePieceEvent ON (Scout.id = ScoreGamePieceEvent.scoutid)
+		GROUP BY Scout.id
+	      	     ) AS PiecesPerScout ON (RobotInMatch.ID = PiecesPerScout.robotInMatchID)
+
+	GROUP BY RobotInMatch.id
+	      ) AS PiecesPerMatch ON (Robot.TBAKey = PiecesPerMatch.robotTBAKey)
+
+GROUP BY Robot.number
+ORDER BY Robot.number::integer ASC;
 
