@@ -9,10 +9,17 @@
  * 		so can not be used to test timestamps 
  * 		NOTE: Assumes no other matches have been 
  * 		added into the DB!
+ * 		NOTE: the data is not reasonable in all ways
+ * 		IE two robots could have scored a
+ * 		a cone on the same scoring location 
+ * 		the goal of this data is not to be reasonable 
+ * 		for a whole competition, but to be reasonable 
+ * 		per robot so that we can test our average based
+ * 		queries 
  *  
  *  Author: 	Cordelia Notbohm
  *  Version: 	1.1.0
- *  Date:    	3/5/23
+ *  Date:    	3/9/23
  *
  */
 
@@ -188,7 +195,7 @@ PREPARE updateNotes (integer, text) AS
  * 5	949	4089	8248		2910	4131	4682
  * 6	4512	1318	949		4089 	2522 	2930
  * 
- * 
+ */ 
 
 
 /*
@@ -214,58 +221,58 @@ EXECUTE insertARobot ('frc8248', '8248', 'ChainLynx');
 /*
  *  	Adding the matches 
  */
-insertAMatch('2023WATEST_qmm1', '2023WATEST', 'Q', '1');
-insertAMatch('2023WATEST_qmm2', '2023WATEST', 'Q', '2');
-insertAMatch('2023WATEST_qmm3', '2023WATEST', 'Q', '3');
-insertAMatch('2023WATEST_qmm4', '2023WATEST', 'Q', '4');
-insertAMatch('2023WATEST_qmm5', '2023WATEST', 'Q', '5');
-insertAMatch('2023WATEST_qmm6', '2023WATEST', 'Q', '6');
+EXECUTE insertAMatch('2023WATEST_qm1', '2023WATEST', 'Q', '1');
+EXECUTE insertAMatch('2023WATEST_qm2', '2023WATEST', 'Q', '2');
+EXECUTE insertAMatch('2023WATEST_qm3', '2023WATEST', 'Q', '3');
+EXECUTE insertAMatch('2023WATEST_qm4', '2023WATEST', 'Q', '4');
+EXECUTE insertAMatch('2023WATEST_qm5', '2023WATEST', 'Q', '5');
+EXECUTE insertAMatch('2023WATEST_qm6', '2023WATEST', 'Q', '6');
 
 
 /*
  *  	Adding the RobotInMatches 
  */
-EXECUTE insertARobotInMatch('2023WATEST_qmm1', 'frc2930', 'R1');
-EXECUTE insertARobotInMatch('2023WATEST_qmm1', 'frc8248', 'R2');
-EXECUTE insertARobotInMatch('2023WATEST_qmm1', 'frc4131', 'R3');
-EXECUTE insertARobotInMatch('2023WATEST_qmm1', 'frc949', 'B1');
-EXECUTE insertARobotInMatch('2023WATEST_qmm1', 'frc1318', 'B2');
-EXECUTE insertARobotInMatch('2023WATEST_qmm1', 'frc2910', 'B3');
+EXECUTE insertARobotInMatch('2023WATEST_qm1', 'frc2930', 'R1');
+EXECUTE insertARobotInMatch('2023WATEST_qm1', 'frc8248', 'R2');
+EXECUTE insertARobotInMatch('2023WATEST_qm1', 'frc4131', 'R3');
+EXECUTE insertARobotInMatch('2023WATEST_qm1', 'frc949', 'B1');
+EXECUTE insertARobotInMatch('2023WATEST_qm1', 'frc1318', 'B2');
+EXECUTE insertARobotInMatch('2023WATEST_qm1', 'frc2910', 'B3');
 
-EXECUTE insertARobotInMatch('2023WATEST_qmm2', 'frc2522', 'R1');
-EXECUTE insertARobotInMatch('2023WATEST_qmm2', 'frc4512', 'R2');
-EXECUTE insertARobotInMatch('2023WATEST_qmm2', 'frc4682', 'R3');
-EXECUTE insertARobotInMatch('2023WATEST_qmm2', 'frc1318', 'B1');
-EXECUTE insertARobotInMatch('2023WATEST_qmm2', 'frc2930', 'B2');
-EXECUTE insertARobotInMatch('2023WATEST_qmm2', 'frc4089', 'B3');
+EXECUTE insertARobotInMatch('2023WATEST_qm2', 'frc2522', 'R1');
+EXECUTE insertARobotInMatch('2023WATEST_qm2', 'frc4512', 'R2');
+EXECUTE insertARobotInMatch('2023WATEST_qm2', 'frc4682', 'R3');
+EXECUTE insertARobotInMatch('2023WATEST_qm2', 'frc1318', 'B1');
+EXECUTE insertARobotInMatch('2023WATEST_qm2', 'frc2930', 'B2');
+EXECUTE insertARobotInMatch('2023WATEST_qm2', 'frc4089', 'B3');
 
-EXECUTE insertARobotInMatch('2023WATEST_qmm3', 'frc2910', 'R1');
-EXECUTE insertARobotInMatch('2023WATEST_qmm3', 'frc2930', 'R2');
-EXECUTE insertARobotInMatch('2023WATEST_qmm3', 'frc4089', 'R3');
-EXECUTE insertARobotInMatch('2023WATEST_qmm3', 'frc4131', 'B1');
-EXECUTE insertARobotInMatch('2023WATEST_qmm3', 'frc8248', 'B2');
-EXECUTE insertARobotInMatch('2023WATEST_qmm3', 'frc2522', 'B3');
+EXECUTE insertARobotInMatch('2023WATEST_qm3', 'frc2910', 'R1');
+EXECUTE insertARobotInMatch('2023WATEST_qm3', 'frc2930', 'R2');
+EXECUTE insertARobotInMatch('2023WATEST_qm3', 'frc4089', 'R3');
+EXECUTE insertARobotInMatch('2023WATEST_qm3', 'frc4131', 'B1');
+EXECUTE insertARobotInMatch('2023WATEST_qm3', 'frc8248', 'B2');
+EXECUTE insertARobotInMatch('2023WATEST_qm3', 'frc2522', 'B3');
 
-EXECUTE insertARobotInMatch('2023WATEST_qmm4', 'frc8248', 'R1');
-EXECUTE insertARobotInMatch('2023WATEST_qmm4', 'frc2910', 'R2');
-EXECUTE insertARobotInMatch('2023WATEST_qmm4', 'frc2522', 'R3');
-EXECUTE insertARobotInMatch('2023WATEST_qmm4', 'frc1318', 'B1');
-EXECUTE insertARobotInMatch('2023WATEST_qmm4', 'frc4512', 'B2');
-EXECUTE insertARobotInMatch('2023WATEST_qmm4', 'frc4682', 'B3');
+EXECUTE insertARobotInMatch('2023WATEST_qm4', 'frc8248', 'R1');
+EXECUTE insertARobotInMatch('2023WATEST_qm4', 'frc2910', 'R2');
+EXECUTE insertARobotInMatch('2023WATEST_qm4', 'frc2522', 'R3');
+EXECUTE insertARobotInMatch('2023WATEST_qm4', 'frc1318', 'B1');
+EXECUTE insertARobotInMatch('2023WATEST_qm4', 'frc4512', 'B2');
+EXECUTE insertARobotInMatch('2023WATEST_qm4', 'frc4682', 'B3');
 
-EXECUTE insertARobotInMatch('2023WATEST_qmm5', 'frc949', 'R1');
-EXECUTE insertARobotInMatch('2023WATEST_qmm5', 'frc4089', 'R2');
-EXECUTE insertARobotInMatch('2023WATEST_qmm5', 'frc8248', 'R3');
-EXECUTE insertARobotInMatch('2023WATEST_qmm5', 'frc2910', 'B1');
-EXECUTE insertARobotInMatch('2023WATEST_qmm5', 'frc4131', 'B2');
-EXECUTE insertARobotInMatch('2023WATEST_qmm5', 'frc4682', 'B3');
+EXECUTE insertARobotInMatch('2023WATEST_qm5', 'frc949', 'R1');
+EXECUTE insertARobotInMatch('2023WATEST_qm5', 'frc4089', 'R2');
+EXECUTE insertARobotInMatch('2023WATEST_qm5', 'frc8248', 'R3');
+EXECUTE insertARobotInMatch('2023WATEST_qm5', 'frc2910', 'B1');
+EXECUTE insertARobotInMatch('2023WATEST_qm5', 'frc4131', 'B2');
+EXECUTE insertARobotInMatch('2023WATEST_qm5', 'frc4682', 'B3');
 
-EXECUTE insertARobotInMatch('2023WATEST_qmm6', 'frc4512', 'R1');
-EXECUTE insertARobotInMatch('2023WATEST_qmm6', 'frc1318', 'R2');
-EXECUTE insertARobotInMatch('2023WATEST_qmm6', 'frc949', 'R3');
-EXECUTE insertARobotInMatch('2023WATEST_qmm6', 'frc4089', 'B1');
-EXECUTE insertARobotInMatch('2023WATEST_qmm6', 'frc2522', 'B2');
-EXECUTE insertARobotInMatch('2023WATEST_qmm6', 'frc2930', 'B3');
+EXECUTE insertARobotInMatch('2023WATEST_qm6', 'frc4512', 'R1');
+EXECUTE insertARobotInMatch('2023WATEST_qm6', 'frc1318', 'R2');
+EXECUTE insertARobotInMatch('2023WATEST_qm6', 'frc949', 'R3');
+EXECUTE insertARobotInMatch('2023WATEST_qm6', 'frc4089', 'B1');
+EXECUTE insertARobotInMatch('2023WATEST_qm6', 'frc2522', 'B2');
+EXECUTE insertARobotInMatch('2023WATEST_qm6', 'frc2930', 'B3');
 
 
 
@@ -288,73 +295,231 @@ EXECUTE insertARobotInMatch('2023WATEST_qmm6', 'frc2930', 'B3');
 -- M1 B1 (scout1)
 
 EXECUTE insertAScout(4);
+EXECUTE updatePreloadedPiece(1, 'CN');
+EXECUTE insertStartEvent(1);
+EXECUTE insertScoreGamePieceEvent(1, 'T', 'CN', 'M9');
+EXECUTE insertPickUpGamePieceEvent(1, 'T', 'CN', 'DS');
+EXECUTE insertFaultEvent(1, 'T', 'DN');
+EXECUTE insertPickUpGamePieceEvent(1, 'T', 'CN', 'DS');
+EXECUTE insertScoreGamePieceEvent(1, 'T', 'CN', 'M7');
+EXECUTE insertPickUpGamePieceEvent(1, 'T', 'CN', 'DS');
+EXECUTE insertScoreGamePieceEvent(1, 'T', 'CN', 'M6');
+EXECUTE insertPickUpGamePieceEvent(1, 'T', 'CN', 'DS');
+EXECUTE insertFaultEvent(1, 'T', 'DN');
+EXECUTE insertScoreWithoutGamePieceEvent(1, 'T', 'DK');
+EXECUTE insertScoreWithoutGamePieceEvent(1, 'T', 'EG');
+EXECUTE insertFinishEvent(1);
 
 
 -- M5 R1 (scout2)
 
 EXECUTE insertAScout(25);
+EXECUTE updatePreloadedPiece(2, 'CN');
+EXECUTE insertStartEvent(2);
+EXECUTE insertScoreWithoutGamePieceEvent(2, 'A', 'MB');
+EXECUTE insertScoreGamePieceEvent(2, 'T', 'CN', 'M9');
+EXECUTE insertPickUpGamePieceEvent(2, 'T', 'CN', 'DS');
+EXECUTE insertFaultEvent(2, 'T', 'DN');
+EXECUTE insertPickUpGamePieceEvent(2, 'T', 'CN', 'DS');
+EXECUTE insertScoreGamePieceEvent(2, 'T', 'CN', 'M7');
+EXECUTE insertPickUpGamePieceEvent(2, 'T', 'CN', 'DS');
+EXECUTE insertScoreGamePieceEvent(2, 'T', 'CN', 'L6');
+EXECUTE insertPickUpGamePieceEvent(2, 'T', 'CN', 'DS');
+EXECUTE insertScoreGamePieceEvent(2, 'T', 'CN', 'L7');
+EXECUTE insertScoreWithoutGamePieceEvent(2, 'T', 'DK');
+EXECUTE insertFinishEvent(2);
+
 
 
 -- M6 R3 (scout3)
 
 EXECUTE insertAScout(33);
-
+EXECUTE updatePreloadedPiece(3, 'CN');
+EXECUTE insertStartEvent(3);
+EXECUTE insertScoreWithoutGamePieceEvent(3, 'A', 'MB');
+EXECUTE insertScoreGamePieceEvent(3, 'T', 'CN', 'L9');
+EXECUTE insertPickUpGamePieceEvent(3, 'T', 'CN', 'DS');
+EXECUTE insertScoreGamePieceEvent(3, 'T', 'CN', 'M7');
+EXECUTE insertPickUpGamePieceEvent(3, 'T', 'CN', 'DS');
+EXECUTE insertScoreGamePieceEvent(3, 'T', 'CN', 'M9');
+EXECUTE insertPickUpGamePieceEvent(3, 'T', 'CN', 'DS');
+EXECUTE insertFaultEvent(3, 'T', 'DN');
+EXECUTE insertPickUpGamePieceEvent(3, 'T', 'CN', 'DS');
+EXECUTE insertFaultEvent(3, 'T', 'DN');
+EXECUTE insertPickUpGamePieceEvent(3, 'T', 'CN', 'DS');
+EXECUTE insertScoreGamePieceEvent(3, 'T', 'CN', 'L7');
+EXECUTE insertScoreWithoutGamePieceEvent(3, 'T', 'DK');
+EXECUTE insertScoreWithoutGamePieceEvent(3, 'T', 'EG');
+EXECUTE insertFinishEvent(3);
 
 
 
 /*
  *  	Adding data for 1318 Issaquah Robotics Society 
- * 	better at cones - high and med (more mid)
+ * 	better at cubes - high and med (more mid)
+ * 	inverse of 2522 (do cubes where they do cones)
  */
 
 -- M1 B2 (scout4)
 
 EXECUTE insertAScout(5);
+EXECUTE updatePreloadedPiece(4, 'CB');
+EXECUTE insertStartEvent(4);
+EXECUTE insertScoreGamePieceEvent(4, 'A', 'CB', 'M2');
+EXECUTE insertPickUpGamePieceEvent(4, 'T', 'CB', 'G');
+EXECUTE insertScoreGamePieceEvent(4, 'T', 'CB', 'H5');
+EXECUTE insertPickUpGamePieceEvent(4, 'T', 'CB', 'DS');
+EXECUTE insertFaultEvent(4, 'T', 'DB');
+EXECUTE insertPickUpGamePieceEvent(4, 'T', 'CB', 'G');
+EXECUTE insertScoreGamePieceEvent(4, 'T', 'CB', 'H2');
+EXECUTE insertPickUpGamePieceEvent(4, 'T', 'CN', 'DS');
+EXECUTE insertScoreGamePieceEvent(4, 'T', 'CN', 'M1');
+EXECUTE insertFinishEvent(4);
 
 
 -- M2 B1 (scout5)
 
 EXECUTE insertAScout(10);
+EXECUTE updatePreloadedPiece(5, 'CB');
+EXECUTE insertStartEvent(5);
+EXECUTE insertScoreGamePieceEvent(5, 'A', 'CB', 'L2');
+EXECUTE insertScoreWithoutGamePieceEvent(5, 'A', 'MB');
+EXECUTE insertPickUpGamePieceEvent(5, 'T', 'CB', 'G');
+EXECUTE insertScoreGamePieceEvent(5, 'T', 'CB', 'M5');
+EXECUTE insertPickUpGamePieceEvent(5, 'T', 'CB', 'DS');
+EXECUTE insertScoreGamePieceEvent(5, 'T', 'CB', 'M2');
+EXECUTE insertPickUpGamePieceEvent(5, 'T', 'CN', 'DS');
+EXECUTE insertScoreGamePieceEvent(5, 'T', 'CN', 'M1');
+EXECUTE insertPickUpGamePieceEvent(5, 'T', 'CN', 'DS');
+EXECUTE insertScoreGamePieceEvent(5, 'T', 'CN', 'H1');
+EXECUTE insertScoreWithoutGamePieceEvent(5, 'T', 'DK');
+EXECUTE insertScoreWithoutGamePieceEvent(5, 'T', 'EG');
+EXECUTE insertFinishEvent(5);
+
 
 
 -- M4 B1 (scout6)
 
 EXECUTE insertAScout(22);
+EXECUTE updatePreloadedPiece(6, 'CB');
+EXECUTE insertStartEvent(6);
+EXECUTE insertFaultEvent(6, 'A', 'DB');
+EXECUTE insertScoreWithoutGamePieceEvent(6, 'A', 'MB');
+EXECUTE insertPickUpGamePieceEvent(6, 'T', 'CB', 'G');
+EXECUTE insertScoreGamePieceEvent(6, 'T', 'CB', 'M5');
+EXECUTE insertPickUpGamePieceEvent(6, 'T', 'CB', 'DS');
+EXECUTE insertScoreGamePieceEvent(6, 'T', 'CB', 'M2');
+EXECUTE insertPickUpGamePieceEvent(6, 'T', 'CN', 'DS');
+EXECUTE insertFaultEvent(6, 'T', 'DN');
+EXECUTE insertPickUpGamePieceEvent(6, 'T', 'CN', 'DS');
+EXECUTE insertScoreGamePieceEvent(6, 'T', 'CN', 'M1');
+EXECUTE insertPickUpGamePieceEvent(6, 'T', 'CN', 'DS');
+EXECUTE insertScoreGamePieceEvent(6, 'T', 'CN', 'H1');
+EXECUTE insertScoreWithoutGamePieceEvent(6, 'T', 'DK');
+EXECUTE insertScoreWithoutGamePieceEvent(6, 'T', 'EG');
+EXECUTE insertFinishEvent(6);
 
 
 -- M6 R2 (scout7)
 
 EXECUTE insertAScout(32);
-
+EXECUTE updatePreloadedPiece(7, 'CB');
+EXECUTE insertStartEvent(7);
+EXECUTE insertScoreGamePieceEvent(7, 'A', 'CB', 'M2');
+EXECUTE insertScoreWithoutGamePieceEvent(7, 'A', 'MB');
+EXECUTE insertPickUpGamePieceEvent(7, 'T', 'CB', 'G');
+EXECUTE insertScoreGamePieceEvent(7, 'T', 'CB', 'H5');
+EXECUTE insertPickUpGamePieceEvent(7, 'T', 'CB', 'DS');
+EXECUTE insertScoreGamePieceEvent(7, 'T', 'CB', 'H2');
+EXECUTE insertPickUpGamePieceEvent(7, 'T', 'CN', 'DS');
+EXECUTE insertScoreGamePieceEvent(7, 'T', 'CN', 'M4');
+EXECUTE insertPickUpGamePieceEvent(7, 'T', 'CN', 'DS');
+EXECUTE insertScoreGamePieceEvent(7, 'T', 'CN', 'M1');
+EXECUTE insertFinishEvent(7);
 
 
 
 /*
  *  	Adding data for 2522 Royal Robotics 
  * 	better at cones
- * 	high mid (more mid)
+ * 	high mid (more mid) 
+ * 	inverse of 1318 (do cones where they do cubes)
  */
 
 -- M2 R1 (scout8)
 
 EXECUTE insertAScout(7);
+EXECUTE updatePreloadedPiece(8, 'CN');
+EXECUTE insertStartEvent(8);
+EXECUTE insertScoreGamePieceEvent(8, 'A', 'CN', 'M1');
+EXECUTE insertPickUpGamePieceEvent(8, 'T', 'CN', 'DS');
+EXECUTE insertScoreGamePieceEvent(8, 'T', 'CN', 'H4');
+EXECUTE insertPickUpGamePieceEvent(8, 'T', 'CN', 'DS');
+EXECUTE insertFaultEvent(8, 'T', 'DN');
+EXECUTE insertPickUpGamePieceEvent(8, 'T', 'CN', 'DS');
+EXECUTE insertScoreGamePieceEvent(8, 'T', 'CN', 'H1');
+EXECUTE insertPickUpGamePieceEvent(8, 'T', 'CB', 'DS');
+EXECUTE insertScoreGamePieceEvent(8, 'T', 'CB', 'M2');
+EXECUTE insertFinishEvent(8);
 
 
 -- M3 B3 (scout9)
 
 EXECUTE insertAScout(18);
+EXECUTE updatePreloadedPiece(9, 'CN');
+EXECUTE insertStartEvent(9);
+EXECUTE insertScoreGamePieceEvent(9, 'A', 'CN', 'L1');
+EXECUTE insertScoreWithoutGamePieceEvent(9, 'A', 'MB');
+EXECUTE insertPickUpGamePieceEvent(9, 'T', 'CN', 'DS');
+EXECUTE insertScoreGamePieceEvent(9, 'T', 'CN', 'M4');
+EXECUTE insertPickUpGamePieceEvent(9, 'T', 'CN', 'DS');
+EXECUTE insertScoreGamePieceEvent(9, 'T', 'CN', 'M1');
+EXECUTE insertPickUpGamePieceEvent(9, 'T', 'CB', 'DS');
+EXECUTE insertScoreGamePieceEvent(9, 'T', 'CB', 'M2');
+EXECUTE insertPickUpGamePieceEvent(9, 'T', 'CB', 'DS');
+EXECUTE insertScoreGamePieceEvent(9, 'T', 'CB', 'H2');
+EXECUTE insertScoreWithoutGamePieceEvent(9, 'T', 'DK');
+EXECUTE insertScoreWithoutGamePieceEvent(9, 'T', 'EG');
+EXECUTE insertFinishEvent(9);
 
 
 -- M4 R3 (scout10)
 
 EXECUTE insertAScout(21);
-
+EXECUTE updatePreloadedPiece(10, 'CN');
+EXECUTE insertStartEvent(10);
+EXECUTE insertFaultEvent(10, 'A', 'DN');
+EXECUTE insertScoreWithoutGamePieceEvent(10, 'A', 'MB');
+EXECUTE insertPickUpGamePieceEvent(10, 'T', 'CN', 'DS');
+EXECUTE insertScoreGamePieceEvent(10, 'T', 'CN', 'M4');
+EXECUTE insertPickUpGamePieceEvent(10, 'T', 'CN', 'DS');
+EXECUTE insertScoreGamePieceEvent(10, 'T', 'CN', 'M1');
+EXECUTE insertPickUpGamePieceEvent(10, 'T', 'CB', 'DS');
+EXECUTE insertFaultEvent(10, 'T', 'DB');
+EXECUTE insertPickUpGamePieceEvent(10, 'T', 'CB', 'DS');
+EXECUTE insertScoreGamePieceEvent(10, 'T', 'CB', 'M2');
+EXECUTE insertPickUpGamePieceEvent(10, 'T', 'CB', 'DS');
+EXECUTE insertScoreGamePieceEvent(10, 'T', 'CB', 'H2');
+EXECUTE insertScoreWithoutGamePieceEvent(10, 'T', 'DK');
+EXECUTE insertScoreWithoutGamePieceEvent(10, 'T', 'EG');
+EXECUTE insertFinishEvent(10);
 
 -- M6 B2 (scout11)
 
 EXECUTE insertAScout(35);
-
-
+EXECUTE updatePreloadedPiece(11, 'CN');
+EXECUTE insertStartEvent(11);
+EXECUTE insertScoreGamePieceEvent(11, 'A', 'CN', 'M1');
+EXECUTE insertScoreWithoutGamePieceEvent(11, 'A', 'MB');
+EXECUTE insertPickUpGamePieceEvent(11, 'T', 'CN', 'DS');
+EXECUTE insertScoreGamePieceEvent(11, 'T', 'CN', 'H4');
+EXECUTE insertPickUpGamePieceEvent(11, 'T', 'CN', 'DS');
+EXECUTE insertScoreGamePieceEvent(11, 'T', 'CN', 'H1');
+EXECUTE insertPickUpGamePieceEvent(11, 'T', 'CB', 'DS');
+EXECUTE insertScoreGamePieceEvent(11, 'T', 'CB', 'M5');
+EXECUTE insertPickUpGamePieceEvent(11, 'T', 'CB', 'DS');
+EXECUTE insertScoreGamePieceEvent(11, 'T', 'CB', 'M2');
+EXECUTE insertFinishEvent(11);
 
 
 
@@ -363,7 +528,7 @@ EXECUTE insertAScout(35);
  * 	Amazing (mostly high)
  */
 
--- M1 B3 (scout12)
+-- M1 B3 (robotInMatch6) (scout12)
 
 EXECUTE insertAScout(6);
 EXECUTE updatePreloadedPiece(12, 'CN');
@@ -371,7 +536,7 @@ EXECUTE insertStartEvent(12);
 EXECUTE insertScoreGamePieceEvent(12, 'A', 'CN', 'H1');
 EXECUTE insertScoreWithoutGamePieceEvent(12, 'A', 'MB');
 EXECUTE insertPickUpGamePieceEvent(12, 'A', 'CB', 'G');
-EXECUTE insertFaultEvent(12, 'A', 'DP');
+EXECUTE insertFaultEvent(12, 'A', 'DB');
 EXECUTE insertScoreWithoutGamePieceEvent(12, 'A', 'DK');
 EXECUTE insertScoreWithoutGamePieceEvent(12, 'A', 'EG');
 EXECUTE insertPickUpGamePieceEvent(12, 'T', 'CN', 'DS');
@@ -382,23 +547,100 @@ EXECUTE insertPickUpGamePieceEvent(12, 'T', 'CN', 'DS');
 EXECUTE insertScoreGamePieceEvent(12, 'T', 'CN', 'H6');
 EXECUTE insertPickUpGamePieceEvent(12, 'T', 'CN', 'DS');
 EXECUTE insertScoreGamePieceEvent(12, 'T', 'CN', 'H7');
+EXECUTE insertPickUpGamePieceEvent(12, 'T', 'CB', 'G');
+EXECUTE insertScoreGamePieceEvent(12, 'T', 'CB', 'L2');
+EXECUTE insertPickUpGamePieceEvent(12, 'T', 'CB', 'G');
+EXECUTE insertScoreGamePieceEvent(12, 'T', 'CB', 'H8');
 EXECUTE insertScoreWithoutGamePieceEvent(12, 'T', 'DK');
 EXECUTE insertFinishEvent(12);
 
--- M3 R1 (scout13)
+
+-- M3 R1 (robotInMatch13)(scout13)
 
 EXECUTE insertAScout(13);
+EXECUTE updatePreloadedPiece(13, 'CN');
+EXECUTE insertStartEvent(13);
+EXECUTE insertScoreGamePieceEvent(13, 'A', 'CN', 'H1');
+EXECUTE insertScoreWithoutGamePieceEvent(13, 'A', 'MB');
+EXECUTE insertPickUpGamePieceEvent(13, 'A', 'CB', 'G');
+EXECUTE insertScoreGamePieceEvent(13, 'A', 'CB', 'H2');
+EXECUTE insertScoreWithoutGamePieceEvent(13, 'A', 'DK');
+EXECUTE insertScoreWithoutGamePieceEvent(13, 'A', 'EG');
+EXECUTE insertPickUpGamePieceEvent(13, 'T', 'CN', 'DS');
+EXECUTE insertScoreGamePieceEvent(13, 'T', 'CN', 'H3');
+EXECUTE insertPickUpGamePieceEvent(13, 'T', 'CN', 'DS');
+EXECUTE insertScoreGamePieceEvent(13, 'T', 'CN', 'H4');
+EXECUTE insertPickUpGamePieceEvent(13, 'T', 'CB', 'G');
+EXECUTE insertScoreGamePieceEvent(13, 'T', 'CB', 'H5');
+EXECUTE insertPickUpGamePieceEvent(13, 'T', 'CB', 'G');
+EXECUTE insertScoreGamePieceEvent(13, 'T', 'CB', 'M5');
+EXECUTE insertPickUpGamePieceEvent(13, 'T', 'CB', 'G');
+EXECUTE insertScoreGamePieceEvent(13, 'T', 'CB', 'M2');
+EXECUTE insertPickUpGamePieceEvent(13, 'T', 'CN', 'DS');
+EXECUTE insertScoreGamePieceEvent(13, 'T', 'CN', 'H6');
+EXECUTE insertScoreWithoutGamePieceEvent(13, 'T', 'DK');
+EXECUTE insertScoreWithoutGamePieceEvent(13, 'T', 'EG');
+EXECUTE insertFinishEvent(13);
 
 
 -- M4 R2 (scout14)
 
 EXECUTE insertAScout(20);
+EXECUTE updatePreloadedPiece(14, 'CN');
+EXECUTE insertStartEvent(14);
+EXECUTE insertScoreGamePieceEvent(14, 'A', 'CN', 'H1');
+EXECUTE insertScoreWithoutGamePieceEvent(14, 'A', 'MB');
+EXECUTE insertPickUpGamePieceEvent(14, 'A', 'CB', 'G');
+EXECUTE insertScoreGamePieceEvent(14, 'A', 'CB', 'H2');
+EXECUTE insertPickUpGamePieceEvent(14, 'A', 'CB', 'G');
+EXECUTE insertScoreGamePieceEvent(14, 'A', 'CB', 'H5');
+EXECUTE insertPickUpGamePieceEvent(14, 'T', 'CB', 'G');
+EXECUTE insertScoreGamePieceEvent(14, 'T', 'CB', 'H6');
+EXECUTE insertPickUpGamePieceEvent(14, 'T', 'CN', 'DS');
+EXECUTE insertScoreGamePieceEvent(14, 'T', 'CN', 'M3');
+EXECUTE insertPickUpGamePieceEvent(14, 'T', 'CN', 'DS');
+EXECUTE insertScoreGamePieceEvent(14, 'T', 'CN', 'H3');
+EXECUTE insertPickUpGamePieceEvent(14, 'T', 'CN', 'DS');
+EXECUTE insertScoreGamePieceEvent(14, 'T', 'CN', 'H4');
+EXECUTE insertPickUpGamePieceEvent(14, 'T', 'CB', 'G');
+EXECUTE insertScoreGamePieceEvent(14, 'T', 'CB', 'L1');
+EXECUTE insertPickUpGamePieceEvent(14, 'T', 'CB', 'G');
+EXECUTE insertScoreGamePieceEvent(14, 'T', 'CB', 'M2');
+EXECUTE insertPickUpGamePieceEvent(14, 'T', 'CN', 'DS');
+EXECUTE insertScoreGamePieceEvent(14, 'T', 'CN', 'M1');
+EXECUTE insertPickUpGamePieceEvent(14, 'T', 'CN', 'DS');
+EXECUTE insertScoreGamePieceEvent(14, 'T', 'CN', 'H7');
+EXECUTE insertFinishEvent(14);
 
 
 -- M5 B1 (scout15)
 
 EXECUTE insertAScout(28);
-
+EXECUTE updatePreloadedPiece(15, 'CN');
+EXECUTE insertStartEvent(15);
+EXECUTE insertScoreGamePieceEvent(15, 'A', 'CN', 'H1');
+EXECUTE insertScoreWithoutGamePieceEvent(15, 'A', 'MB');
+EXECUTE insertPickUpGamePieceEvent(15, 'A', 'CB', 'G');
+EXECUTE insertScoreGamePieceEvent(15, 'A', 'CB', 'H2');
+EXECUTE insertPickUpGamePieceEvent(15, 'A', 'CB', 'G');
+EXECUTE insertScoreGamePieceEvent(15, 'A', 'CB', 'H5');
+EXECUTE insertPickUpGamePieceEvent(15, 'T', 'CN', 'DS');
+EXECUTE insertScoreGamePieceEvent(15, 'T', 'CN', 'H3');
+EXECUTE insertPickUpGamePieceEvent(15, 'T', 'CN', 'DS');
+EXECUTE insertScoreGamePieceEvent(15, 'T', 'CN', 'H4');
+EXECUTE insertPickUpGamePieceEvent(15, 'T', 'CB', 'G');
+EXECUTE insertScoreGamePieceEvent(15, 'T', 'CB', 'L1');
+EXECUTE insertPickUpGamePieceEvent(15, 'T', 'CB', 'G');
+EXECUTE insertScoreGamePieceEvent(15, 'T', 'CB', 'M2');
+EXECUTE insertPickUpGamePieceEvent(15, 'T', 'CN', 'DS');
+EXECUTE insertScoreGamePieceEvent(15, 'T', 'CN', 'M1');
+EXECUTE insertPickUpGamePieceEvent(15, 'T', 'CN', 'DS');
+EXECUTE insertScoreGamePieceEvent(15, 'T', 'CN', 'H5');
+EXECUTE insertPickUpGamePieceEvent(15, 'T', 'CN', 'DS');
+EXECUTE insertScoreGamePieceEvent(15, 'T', 'CN', 'M3');
+EXECUTE insertScoreWithoutGamePieceEvent(15, 'T', 'DK');
+EXECUTE insertScoreWithoutGamePieceEvent(15, 'T', 'EG');
+EXECUTE insertFinishEvent(15);
 
 
 
@@ -410,22 +652,97 @@ EXECUTE insertAScout(28);
 -- M1 R1 (scout16)
 
 EXECUTE insertAScout(1);
+EXECUTE updatePreloadedPiece(16, 'CN');
+EXECUTE insertStartEvent(16);
+EXECUTE insertFaultEvent(16, 'A', 'DN');
+EXECUTE insertScoreWithoutGamePieceEvent(16, 'A', 'MB');
+EXECUTE insertScoreWithoutGamePieceEvent(16, 'A', 'DK');
+EXECUTE insertScoreWithoutGamePieceEvent(16, 'A', 'EG');
+EXECUTE insertPickUpGamePieceEvent(16, 'T', 'CB', 'G');
+EXECUTE insertFaultEvent(16, 'T', 'DB');
+EXECUTE insertPickUpGamePieceEvent(16, 'T', 'CB', 'G');
+EXECUTE insertScoreGamePieceEvent(16, 'T', 'CB', 'H2');
+EXECUTE insertPickUpGamePieceEvent(16, 'T', 'CN', 'DS');
+EXECUTE insertScoreGamePieceEvent(16, 'T', 'CN', 'H4');
+EXECUTE insertPickUpGamePieceEvent(16, 'T', 'CN', 'DS');
+EXECUTE insertScoreGamePieceEvent(16, 'T', 'CN', 'M4');
+EXECUTE insertPickUpGamePieceEvent(16, 'T', 'CN', 'DS');
+EXECUTE insertScoreGamePieceEvent(16, 'T', 'CN', 'H6');
+EXECUTE insertPickUpGamePieceEvent(16, 'T', 'CN', 'DS');
+EXECUTE insertScoreGamePieceEvent(16, 'T', 'CN', 'H1');
+EXECUTE insertScoreWithoutGamePieceEvent(16, 'T', 'DK');
+EXECUTE insertScoreWithoutGamePieceEvent(16, 'T', 'EG');
+EXECUTE insertFinishEvent(16);
 
 
 -- M2 B2 (scout17)
 
 EXECUTE insertAScout(11);
-
+EXECUTE updatePreloadedPiece(17, 'CN');
+EXECUTE insertStartEvent(17);
+EXECUTE insertScoreGamePieceEvent(17, 'A', 'CN', 'H6');
+EXECUTE insertScoreWithoutGamePieceEvent(17, 'A', 'MB');
+EXECUTE insertScoreWithoutGamePieceEvent(17, 'A', 'DK');
+EXECUTE insertScoreWithoutGamePieceEvent(17, 'A', 'EG');
+EXECUTE insertPickUpGamePieceEvent(17, 'T', 'CN', 'DS');
+EXECUTE insertScoreGamePieceEvent(17, 'T', 'CN', 'H3');
+EXECUTE insertPickUpGamePieceEvent(17, 'T', 'CN', 'DS');
+EXECUTE insertScoreGamePieceEvent(17, 'T', 'CN', 'H4');
+EXECUTE insertPickUpGamePieceEvent(17, 'T', 'CB', 'G');
+EXECUTE insertScoreGamePieceEvent(17, 'T', 'CB', 'H5');
+EXECUTE insertPickUpGamePieceEvent(17, 'T', 'CN', 'DS');
+EXECUTE insertScoreGamePieceEvent(17, 'T', 'CN', 'H6');
+EXECUTE insertScoreWithoutGamePieceEvent(17, 'T', 'DK');
+EXECUTE insertScoreWithoutGamePieceEvent(17, 'T', 'EG');
+EXECUTE insertFinishEvent(17);
 
 -- M3 R2 (scout18)
 
 EXECUTE insertAScout(14);
+EXECUTE updatePreloadedPiece(18, 'CN');
+EXECUTE insertStartEvent(18);
+EXECUTE insertScoreGamePieceEvent(18, 'A', 'CN', 'H6');
+EXECUTE insertScoreWithoutGamePieceEvent(18, 'A', 'MB');
+EXECUTE insertPickUpGamePieceEvent(18, 'T', 'CB', 'G');
+EXECUTE insertScoreGamePieceEvent(18, 'T', 'CB', 'H6');
+EXECUTE insertPickUpGamePieceEvent(18, 'T', 'CN', 'DS');
+EXECUTE insertScoreGamePieceEvent(18, 'T', 'CN', 'M3');
+EXECUTE insertPickUpGamePieceEvent(18, 'T', 'CN', 'DS');
+EXECUTE insertScoreGamePieceEvent(18, 'T', 'CN', 'H3');
+EXECUTE insertPickUpGamePieceEvent(18, 'T', 'CN', 'DS');
+EXECUTE insertScoreGamePieceEvent(18, 'T', 'CN', 'H4');
+EXECUTE insertPickUpGamePieceEvent(18, 'T', 'CB', 'G');
+EXECUTE insertScoreGamePieceEvent(18, 'T', 'CB', 'M2');
+EXECUTE insertPickUpGamePieceEvent(18, 'T', 'CN', 'DS');
+EXECUTE insertScoreGamePieceEvent(18, 'T', 'CN', 'M1');
+EXECUTE insertFinishEvent(18);
+
 
 
 -- M6 B3 (scout19)
  
 EXECUTE insertAScout(36);
-
+EXECUTE updatePreloadedPiece(19, 'CN');
+EXECUTE insertStartEvent(19);
+EXECUTE insertScoreGamePieceEvent(19, 'A', 'CN', 'H6');
+EXECUTE insertScoreWithoutGamePieceEvent(19, 'A', 'MB');
+EXECUTE insertScoreWithoutGamePieceEvent(19, 'A', 'DK');
+EXECUTE insertScoreWithoutGamePieceEvent(19, 'A', 'EG');
+EXECUTE insertPickUpGamePieceEvent(19, 'T', 'CN', 'DS');
+EXECUTE insertScoreGamePieceEvent(19, 'T', 'CN', 'H3');
+EXECUTE insertPickUpGamePieceEvent(19, 'T', 'CN', 'DS');
+EXECUTE insertScoreGamePieceEvent(19, 'T', 'CN', 'H4');
+EXECUTE insertPickUpGamePieceEvent(19, 'T', 'CB', 'G');
+EXECUTE insertScoreGamePieceEvent(19, 'T', 'CB', 'H2');
+EXECUTE insertPickUpGamePieceEvent(19, 'T', 'CN', 'DS');
+EXECUTE insertScoreGamePieceEvent(19, 'T', 'CN', 'M1');
+EXECUTE insertPickUpGamePieceEvent(19, 'T', 'CN', 'DS');
+EXECUTE insertScoreGamePieceEvent(19, 'T', 'CN', 'H5');
+EXECUTE insertPickUpGamePieceEvent(19, 'T', 'CN', 'DS');
+EXECUTE insertScoreGamePieceEvent(19, 'T', 'CN', 'M3');
+EXECUTE insertScoreWithoutGamePieceEvent(19, 'T', 'DK');
+EXECUTE insertScoreWithoutGamePieceEvent(19, 'T', 'EG');
+EXECUTE insertFinishEvent(19);
 
 
 
@@ -438,17 +755,61 @@ EXECUTE insertAScout(36);
 -- M1 R3 (scout20)
 
 EXECUTE insertAScout(3);
+EXECUTE updatePreloadedPiece(20, 'CB');
+EXECUTE insertStartEvent(20);
+EXECUTE insertFaultEvent(20, 'A', 'DB');
+EXECUTE insertScoreWithoutGamePieceEvent(20, 'A', 'MB');
+EXECUTE insertPickUpGamePieceEvent(20, 'T', 'CN', 'DS');
+EXECUTE insertFaultEvent(20, 'T', 'DN');
+EXECUTE insertPickUpGamePieceEvent(20, 'T', 'CB', 'G');
+EXECUTE insertScoreGamePieceEvent(20, 'T', 'CB', 'H2');
+EXECUTE insertPickUpGamePieceEvent(20, 'T', 'CN', 'DS');
+EXECUTE insertScoreGamePieceEvent(20, 'T', 'CN', 'H4');
+EXECUTE insertPickUpGamePieceEvent(20, 'T', 'CB', 'DS');
+EXECUTE insertScoreGamePieceEvent(20, 'T', 'CB', 'M5');
+EXECUTE insertPickUpGamePieceEvent(20, 'T', 'CB', 'DS');
+EXECUTE insertScoreGamePieceEvent(20, 'T', 'CB', 'H5');
+EXECUTE insertScoreWithoutGamePieceEvent(20, 'T', 'DK');
+EXECUTE insertScoreWithoutGamePieceEvent(20, 'T', 'EG');
+EXECUTE insertFinishEvent(20);
 
 
 -- M3 B1 (scout21)
 
 EXECUTE insertAScout(16);
+EXECUTE updatePreloadedPiece(21, 'CB');
+EXECUTE insertStartEvent(21);
+EXECUTE insertScoreGamePieceEvent(21, 'A', 'CB', 'H6');
+EXECUTE insertScoreWithoutGamePieceEvent(21, 'A', 'MB');
+EXECUTE insertPickUpGamePieceEvent(21, 'T', 'CB', 'G');
+EXECUTE insertScoreGamePieceEvent(21, 'T', 'CB', 'H6');
+EXECUTE insertPickUpGamePieceEvent(21, 'T', 'CB', 'G');
+EXECUTE insertScoreGamePieceEvent(21, 'T', 'CB', 'M4');
+EXECUTE insertPickUpGamePieceEvent(21, 'T', 'CN', 'DS');
+EXECUTE insertScoreGamePieceEvent(21, 'T', 'CN', 'H3');
+EXECUTE insertPickUpGamePieceEvent(21, 'T', 'CN', 'DS');
+EXECUTE insertScoreGamePieceEvent(21, 'T', 'CN', 'H4');
+EXECUTE insertPickUpGamePieceEvent(21, 'T', 'CB', 'G');
+EXECUTE insertScoreGamePieceEvent(21, 'T', 'CB', 'M2');
+EXECUTE insertFinishEvent(21);
 
 
 -- M5 B2 (scout22)
 
 EXECUTE insertAScout(29);
-
+EXECUTE updatePreloadedPiece(22, 'CB');
+EXECUTE insertStartEvent(22);
+EXECUTE insertScoreGamePieceEvent(22, 'A', 'CB', 'H5');
+EXECUTE insertScoreWithoutGamePieceEvent(22, 'A', 'MB');
+EXECUTE insertPickUpGamePieceEvent(22, 'T', 'CB', 'G');
+EXECUTE insertScoreGamePieceEvent(22, 'T', 'CB', 'H2');
+EXECUTE insertPickUpGamePieceEvent(22, 'T', 'CN', 'DS');
+EXECUTE insertScoreGamePieceEvent(22, 'T', 'CN', 'H4');
+EXECUTE insertPickUpGamePieceEvent(22, 'T', 'CB', 'G');
+EXECUTE insertScoreGamePieceEvent(22, 'T', 'CB', 'H5');
+EXECUTE insertScoreWithoutGamePieceEvent(22, 'T', 'DK');
+EXECUTE insertScoreWithoutGamePieceEvent(22, 'T', 'EG');
+EXECUTE insertFinishEvent(22);
 
 
 
@@ -460,68 +821,186 @@ EXECUTE insertAScout(29);
 -- M2 R2 (scout23)
 
 EXECUTE insertAScout(8);
+EXECUTE insertStartEvent(23);
+EXECUTE insertScoreWithoutGamePieceEvent(23, 'A', 'MB');
+EXECUTE insertScoreGamePieceEvent(23, 'T', 'CB', 'L3');
+EXECUTE insertScoreWithoutGamePieceEvent(23, 'T', 'DK');
+EXECUTE insertScoreWithoutGamePieceEvent(23, 'T', 'EG');
+EXECUTE insertFinishEvent(23);
 
 
 -- M4 B2 (scout24)
 
 EXECUTE insertAScout(23);
+EXECUTE insertStartEvent(24);
+EXECUTE insertScoreWithoutGamePieceEvent(24, 'A', 'MB');
+EXECUTE insertScoreGamePieceEvent(24, 'T', 'CB', 'L3');
+EXECUTE insertScoreGamePieceEvent(24, 'T', 'CN', 'L6');
+EXECUTE insertScoreGamePieceEvent(24, 'T', 'CB', 'L7');
+EXECUTE insertScoreWithoutGamePieceEvent(24, 'T', 'DK');
+EXECUTE insertScoreWithoutGamePieceEvent(24, 'T', 'EG');
+EXECUTE insertFinishEvent(24);
 
 
 -- M6 R1 (scout25)
 
 EXECUTE insertAScout(31);
-
+EXECUTE insertStartEvent(25);
+EXECUTE insertScoreWithoutGamePieceEvent(25, 'A', 'MB');
+EXECUTE insertScoreGamePieceEvent(25, 'T', 'CB', 'L2');
+EXECUTE insertScoreGamePieceEvent(25, 'T', 'CB', 'L9');
+EXECUTE insertScoreWithoutGamePieceEvent(25, 'T', 'DK');
+EXECUTE insertScoreWithoutGamePieceEvent(25, 'T', 'EG');
+EXECUTE insertFinishEvent(25);
 
 
 
 /*
  *  	Adding data for 4682 CyBears
  * 	better at cones then cubes
- * 	med and low (more mid)
+ * 	med and high (more high)
+ *	score cubes 
  */
 
 -- M2 R3 (scout26)
 
 EXECUTE insertAScout(9);
+EXECUTE updatePreloadedPiece(26, 'CN');
+EXECUTE insertStartEvent(26);
+EXECUTE insertFaultEvent(26, 'A', 'DN');
+EXECUTE insertScoreWithoutGamePieceEvent(26, 'A', 'MB');
+EXECUTE insertPickUpGamePieceEvent(26, 'T', 'CN', 'DS');
+EXECUTE insertFaultEvent(26, 'T', 'DN');
+EXECUTE insertPickUpGamePieceEvent(26, 'T', 'CB', 'G');
+EXECUTE insertScoreGamePieceEvent(26, 'T', 'CB', 'H2');
+EXECUTE insertPickUpGamePieceEvent(26, 'T', 'CN', 'DS');
+EXECUTE insertScoreGamePieceEvent(26, 'T', 'CN', 'H4');
+EXECUTE insertPickUpGamePieceEvent(26, 'T', 'CN', 'DS');
+EXECUTE insertScoreGamePieceEvent(26, 'T', 'CN', 'M6');
+EXECUTE insertFaultEvent(26, 'T', 'FD');
+EXECUTE insertFinishEvent(26);
 
 
 -- M4 B3 (scout27)
 
 EXECUTE insertAScout(24);
+EXECUTE updatePreloadedPiece(27, 'CN');
+EXECUTE insertStartEvent(27);
+EXECUTE insertScoreGamePieceEvent(27, 'A', 'CN', 'H4');
+EXECUTE insertScoreWithoutGamePieceEvent(27, 'A', 'MB');
+EXECUTE insertPickUpGamePieceEvent(27, 'T', 'CN', 'DS');
+EXECUTE insertScoreGamePieceEvent(27, 'T', 'CN', 'H6');
+EXECUTE insertPickUpGamePieceEvent(27, 'T', 'CB', 'G');
+EXECUTE insertScoreGamePieceEvent(27, 'T', 'CB', 'M4');
+EXECUTE insertPickUpGamePieceEvent(27, 'T', 'CN', 'DS');
+EXECUTE insertScoreGamePieceEvent(27, 'T', 'CN', 'H3');
+EXECUTE insertPickUpGamePieceEvent(27, 'T', 'CN', 'DS');
+EXECUTE insertScoreGamePieceEvent(27, 'T', 'CN', 'H4');
+EXECUTE insertFaultEvent(27, 'T', 'FD');
+EXECUTE insertFinishEvent(27);
 
 
 -- M5 B3 (scout28)
 
 EXECUTE insertAScout(30);
-
-
+EXECUTE updatePreloadedPiece(28, 'CN');
+EXECUTE insertStartEvent(28);
+EXECUTE insertScoreGamePieceEvent(28, 'A', 'CN', 'H3');
+EXECUTE insertScoreWithoutGamePieceEvent(28, 'A', 'MB');
+EXECUTE insertPickUpGamePieceEvent(28, 'T', 'CN', 'DS');
+EXECUTE insertScoreGamePieceEvent(28, 'T', 'CN', 'H1');
+EXECUTE insertPickUpGamePieceEvent(28, 'T', 'CN', 'DS');
+EXECUTE insertScoreGamePieceEvent(28, 'T', 'CN', 'H4');
+EXECUTE insertPickUpGamePieceEvent(28, 'T', 'CB', 'G');
+EXECUTE insertScoreGamePieceEvent(28, 'T', 'CB', 'H5');
+EXECUTE insertScoreWithoutGamePieceEvent(28, 'T', 'DK');
+EXECUTE insertFinishEvent(28);
 
 
 /*
  *  	Adding data for 4089 Stealth Robotics 
- * 	
+ * 	better at cubes 
  *  
  */
 
 -- M2 B3 (scout29)
 
 EXECUTE insertAScout(12);
-
+EXECUTE updatePreloadedPiece(29, 'CB');
+EXECUTE insertStartEvent(29);
+EXECUTE insertScoreGamePieceEvent(29, 'A', 'CB', 'L5');
+EXECUTE insertScoreWithoutGamePieceEvent(29, 'A', 'MB');
+EXECUTE insertScoreWithoutGamePieceEvent(29, 'A', 'DK');
+EXECUTE insertScoreWithoutGamePieceEvent(29, 'A', 'EG');
+EXECUTE insertPickUpGamePieceEvent(29, 'T', 'CB', 'G');
+EXECUTE insertScoreGamePieceEvent(29, 'T', 'CB', 'M2');
+EXECUTE insertPickUpGamePieceEvent(29, 'T', 'CB', 'G');
+EXECUTE insertScoreGamePieceEvent(29, 'T', 'CB', 'L2');
+EXECUTE insertScoreWithoutGamePieceEvent(29, 'T', 'DK');
+EXECUTE insertScoreWithoutGamePieceEvent(29, 'T', 'EG');
+EXECUTE insertFinishEvent(29);
 
 -- M3 R3 (scout30)
 
 EXECUTE insertAScout(15);
-
+EXECUTE updatePreloadedPiece(30, 'CB');
+EXECUTE insertStartEvent(30);
+EXECUTE insertScoreGamePieceEvent(30, 'A', 'CB', 'L5');
+EXECUTE insertScoreWithoutGamePieceEvent(30, 'A', 'MB');
+EXECUTE insertScoreWithoutGamePieceEvent(30, 'A', 'DK');
+EXECUTE insertScoreWithoutGamePieceEvent(30, 'A', 'EG');
+EXECUTE insertPickUpGamePieceEvent(30, 'T', 'CB', 'G');
+EXECUTE insertScoreGamePieceEvent(30, 'T', 'CB', 'M2');
+EXECUTE insertPickUpGamePieceEvent(30, 'T', 'CB', 'G');
+EXECUTE insertScoreGamePieceEvent(30, 'T', 'CB', 'L2');
+EXECUTE insertPickUpGamePieceEvent(30, 'T', 'CB', 'G');
+EXECUTE insertScoreGamePieceEvent(30, 'T', 'CB', 'L4');
+EXECUTE insertPickUpGamePieceEvent(30, 'T', 'CB', 'G');
+EXECUTE insertScoreGamePieceEvent(30, 'T', 'CB', 'L6');
+EXECUTE insertScoreWithoutGamePieceEvent(30, 'T', 'DK');
+EXECUTE insertScoreWithoutGamePieceEvent(30, 'T', 'EG');
+EXECUTE insertFinishEvent(30);
 
 -- M5 R2 (scout31)
 
 EXECUTE insertAScout(26);
-
+EXECUTE updatePreloadedPiece(31, 'CB');
+EXECUTE insertStartEvent(31);
+EXECUTE insertScoreGamePieceEvent(31, 'A', 'CB', 'L5');
+EXECUTE insertScoreWithoutGamePieceEvent(31, 'A', 'MB');
+EXECUTE insertScoreWithoutGamePieceEvent(31, 'A', 'DK');
+EXECUTE insertScoreWithoutGamePieceEvent(31, 'A', 'EG');
+EXECUTE insertPickUpGamePieceEvent(31, 'T', 'CB', 'G');
+EXECUTE insertScoreGamePieceEvent(31, 'T', 'CB', 'M2');
+EXECUTE insertPickUpGamePieceEvent(31, 'T', 'CB', 'G');
+EXECUTE insertScoreGamePieceEvent(31, 'T', 'CB', 'M5');
+EXECUTE insertPickUpGamePieceEvent(31, 'T', 'CB', 'G');
+EXECUTE insertScoreGamePieceEvent(31, 'T', 'CB', 'L4');
+EXECUTE insertPickUpGamePieceEvent(31, 'T', 'CB', 'G');
+EXECUTE insertScoreWithoutGamePieceEvent(31, 'T', 'DK');
+EXECUTE insertScoreWithoutGamePieceEvent(31, 'T', 'EG');
+EXECUTE insertFinishEvent(31);
 
 -- M6 B1 (scout32)
 
 EXECUTE insertAScout(34);
-
+EXECUTE updatePreloadedPiece(32, 'CB');
+EXECUTE insertStartEvent(32);
+EXECUTE insertScoreGamePieceEvent(32, 'A', 'CB', 'L5');
+EXECUTE insertScoreWithoutGamePieceEvent(32, 'A', 'MB');
+EXECUTE insertScoreWithoutGamePieceEvent(32, 'A', 'DK');
+EXECUTE insertScoreWithoutGamePieceEvent(32, 'A', 'EG');
+EXECUTE insertPickUpGamePieceEvent(32, 'T', 'CB', 'G');
+EXECUTE insertScoreGamePieceEvent(32, 'T', 'CB', 'M2');
+EXECUTE insertPickUpGamePieceEvent(32, 'T', 'CB', 'G');
+EXECUTE insertScoreGamePieceEvent(32, 'T', 'CB', 'L2');
+EXECUTE insertPickUpGamePieceEvent(32, 'T', 'CB', 'G');
+EXECUTE insertScoreGamePieceEvent(32, 'T', 'CB', 'M5');
+EXECUTE insertPickUpGamePieceEvent(32, 'T', 'CB', 'G');
+EXECUTE insertScoreGamePieceEvent(32, 'T', 'CB', 'L6');
+EXECUTE insertScoreWithoutGamePieceEvent(32, 'T', 'DK');
+EXECUTE insertScoreWithoutGamePieceEvent(32, 'T', 'EG');
+EXECUTE insertFinishEvent(32);
 
 
 
@@ -534,19 +1013,70 @@ EXECUTE insertAScout(34);
 -- M1 R2 (scout33)
 
 EXECUTE insertAScout(2);
+EXECUTE updatePreloadedPiece(33, 'CB');
+EXECUTE insertStartEvent(33);
+EXECUTE insertScoreGamePieceEvent(33, 'T', 'CB', 'L9');
+EXECUTE insertPickUpGamePieceEvent(33, 'T', 'CB', 'G');
+EXECUTE insertFaultEvent(33, 'T', 'DB');
+EXECUTE insertPickUpGamePieceEvent(33, 'T', 'CB', 'G');
+EXECUTE insertScoreGamePieceEvent(33, 'T', 'CB', 'L7');
+EXECUTE insertPickUpGamePieceEvent(33, 'T', 'CB', 'DS');
+EXECUTE insertScoreGamePieceEvent(33, 'T', 'CB', 'M8');
+EXECUTE insertScoreWithoutGamePieceEvent(33, 'T', 'DK');
+EXECUTE insertScoreWithoutGamePieceEvent(33, 'T', 'EG');
+EXECUTE insertFinishEvent(33);
 
 
 -- M2 B2 (scout34)
 
 EXECUTE insertAScout(11);
+EXECUTE updatePreloadedPiece(34, 'CB');
+EXECUTE insertStartEvent(34);
+EXECUTE insertScoreGamePieceEvent(34, 'T', 'CB', 'L9');
+EXECUTE insertPickUpGamePieceEvent(34, 'T', 'CB', 'G');
+EXECUTE insertScoreGamePieceEvent(34, 'T', 'CB', 'M8');
+EXECUTE insertPickUpGamePieceEvent(34, 'T', 'CB', 'DS');
+EXECUTE insertFaultEvent(34, 'T', 'DB');
+EXECUTE insertPickUpGamePieceEvent(34, 'T', 'CB', 'DS');
+EXECUTE insertScoreGamePieceEvent(34, 'T', 'CB', 'L7');
+EXECUTE insertPickUpGamePieceEvent(34, 'T', 'CB', 'DS');
+EXECUTE insertScoreGamePieceEvent(34, 'T', 'CB', 'L8');
+EXECUTE insertScoreWithoutGamePieceEvent(34, 'T', 'DK');
+EXECUTE insertFinishEvent(34);
 
 
 -- M4 R1 (scout35)
 
 EXECUTE insertAScout(19);
+EXECUTE updatePreloadedPiece(35, 'CB');
+EXECUTE insertStartEvent(35);
+EXECUTE insertScoreWithoutGamePieceEvent(35, 'A', 'MB');
+EXECUTE insertScoreGamePieceEvent(35, 'T', 'CB', 'L9');
+EXECUTE insertPickUpGamePieceEvent(35, 'T', 'CB', 'G');
+EXECUTE insertScoreGamePieceEvent(35, 'T', 'CB', 'L5');
+EXECUTE insertPickUpGamePieceEvent(35, 'T', 'CB', 'G');
+EXECUTE insertScoreGamePieceEvent(35, 'T', 'CB', 'L7');
+EXECUTE insertPickUpGamePieceEvent(35, 'T', 'CB', 'DS');
+EXECUTE insertScoreGamePieceEvent(35, 'T', 'CB', 'L8');
+EXECUTE insertFaultEvent(35, 'T', 'FD');
+EXECUTE insertFinishEvent(35);
 
 
 -- M5 R3 (scout36)
 
 EXECUTE insertAScout(27);
-
+EXECUTE updatePreloadedPiece(36, 'CB');
+EXECUTE insertStartEvent(36);
+EXECUTE insertScoreGamePieceEvent(36, 'A', 'CB', 'L9');
+EXECUTE insertScoreWithoutGamePieceEvent(36, 'A', 'MB');
+EXECUTE insertPickUpGamePieceEvent(36, 'T', 'CB', 'G');
+EXECUTE insertScoreGamePieceEvent(36, 'T', 'CB', 'M5');
+EXECUTE insertPickUpGamePieceEvent(36, 'T', 'CB', 'G');
+EXECUTE insertScoreGamePieceEvent(36, 'T', 'CB', 'M8');
+EXECUTE insertPickUpGamePieceEvent(36, 'T', 'CB', 'DS');
+EXECUTE insertScoreGamePieceEvent(36, 'T', 'CB', 'L8');
+EXECUTE insertPickUpGamePieceEvent(36, 'T', 'CB', 'DS');
+EXECUTE insertScoreGamePieceEvent(36, 'T', 'CB', 'L7');
+EXECUTE insertScoreWithoutGamePieceEvent(36, 'T', 'DK');
+EXECUTE insertScoreWithoutGamePieceEvent(36, 'T', 'EG');
+EXECUTE insertFinishEvent(36);

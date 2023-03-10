@@ -53,12 +53,12 @@ PREPARE insertACompetition (varchar(12), varchar(120), date) AS
 /*
  *	Inserting a new match record for a given match 
  */ 
-PREPARE insertAMatch (varchar(20), varchar(12), varchar(2), integer) AS 
+PREPARE insertAMatch (varchar(20), varchar(12), varchar(2), varchar(3)) AS 
 	INSERT INTO Match (TBAKey, competitionTBAKey, matchTypeID, number)
 	VALUES ($1, $2, $3, $4);
 
 -- example execute:
--- EXECUTE insertAMatch('2023WASNO_qmm1', '2023WASNO', 'Q', 1);
+-- EXECUTE insertAMatch('2023WASNO_qm1', '2023WASNO', 'Q', '1');
 
 
 
@@ -72,7 +72,7 @@ PREPARE insertARobotInMatch (varchar(20), varchar(10), char(2)) AS
 	VALUES ($1, $2, $3);
 
 -- example execute:
--- EXECUTE insertARobotInMatch('2023WASNO_qmm1', 'frc2930', 'R1');
+-- EXECUTE insertARobotInMatch('2023WASNO_qm1', 'frc2930', 'R1');
 
 
 
@@ -89,7 +89,8 @@ PREPARE insertARobotInMatch (varchar(20), varchar(10), char(2)) AS
  */ 
 PREPARE getCompetitions AS
 	SELECT * 
-	FROM Competition;
+	FROM Competition
+	ORDER BY Competition.startdate;
 
 -- example execute:
 -- EXECUTE getCompetitions;
@@ -108,7 +109,8 @@ PREPARE getCompetitionWithMatchSchedules AS
 	SELECT Competition.TBAKey, Competition.name, Competition.startdate
 	FROM Competition
 		JOIN Match ON (Competition.TBAKey = Match.competitionTBAKey)
-		JOIN RobotInMatch ON (Match.TBAKey = RobotInMatch.MatchTBAKey);
+		JOIN RobotInMatch ON (Match.TBAKey = RobotInMatch.MatchTBAKey)
+	ORDER BY Competition.startdate DESC;
 
 -- example execute:
 -- EXECUTE getCompetitionWithMatchSchedules;
@@ -131,7 +133,8 @@ PREPARE getRobotInMatchesForAllianceStation (varchar(12), char(2)) AS
 		JOIN MatchType ON (Match.matchTypeID = MatchType.ID)
 		JOIN Robot ON (RobotInMatch.RobotTBAKey = Robot.TBAKey)
 	WHERE Match.competitionTBAKey = $1 AND
-		RobotInMatch.allianceStationID = $2;
+		RobotInMatch.allianceStationID = $2
+	ORDER BY Match.matchTypeID DESC, Match.number ASC;
 
 -- example execute:
 -- EXECUTE getRobotInMatchesForAllianceStation('2023WASNO', 'R1');
@@ -384,22 +387,49 @@ PREPARE getCompetitionWithMatchData AS
 
 SELECT Robot.number, ROUND(AVG(conesInAMatch), 2) AS "Average Cones Scored"
 FROM Robot
-	JOIN (
+	LEFT JOIN (
 	-- averages the total score cone events for all the 
 	-- scouts that scouted the same robotInMatch 
-	SELECT RobotInMatch.id, RobotInMatch.robotTBAKey, AVG(totalCones) AS conesInAMatch
+	SELECT RobotInMatch.id, RobotInMatch.robotTBAKey, COALESCE(AVG(totalCones),0) AS conesInAMatch
 	FROM RobotInMatch 
-		JOIN (
+		LEFT JOIN (
  		-- totals all of the score cone events that a single scout
  		-- added for a match 
- 		SELECT Scout.id, Scout.robotInMatchID, COUNT (*) AS totalCones
+ 		SELECT Scout.id, Scout.robotInMatchID, COALESCE(COUNT(ScoreGamePieceEvent.ID), 0) AS totalCones
 		FROM Scout
-			JOIN ScoreGamePieceEvent ON (Scout.id = ScoreGamePieceEvent.scoutid)
+			LEFT JOIN ScoreGamePieceEvent ON (Scout.id = ScoreGamePieceEvent.scoutid)
 		WHERE ScoreGamePieceEvent.gamePieceID = 'CN'
 		GROUP BY Scout.id
 	      	     ) AS ConesPerScout ON (RobotInMatch.ID = ConesPerScout.robotInMatchID)
 	GROUP BY RobotInMatch.id
 	      ) AS ConesPerMatch ON (Robot.TBAKey = ConesPerMatch.robotTBAKey)
 GROUP BY Robot.number
-ORDER BY Robot.number;
+ORDER BY "Average Cones Scored" DESC;
+
+
+/*
+ * Query for average cubes scored per match for each robot 
+ */ 
+
+SELECT Robot.number, ROUND(AVG(conesInAMatch), 2) AS "Average Cubes Scored"
+FROM Robot
+	LEFT JOIN (
+	-- averages the total score cone events for all the 
+	-- scouts that scouted the same robotInMatch 
+	SELECT RobotInMatch.id, RobotInMatch.robotTBAKey, COALESCE(AVG(totalCones),0) AS conesInAMatch
+	FROM RobotInMatch 
+		LEFT JOIN (
+ 		-- totals all of the score cone events that a single scout
+ 		-- added for a match 
+ 		SELECT Scout.id, Scout.robotInMatchID, COALESCE(COUNT(ScoreGamePieceEvent.ID), 0) AS totalCones
+		FROM Scout
+			LEFT JOIN ScoreGamePieceEvent ON (Scout.id = ScoreGamePieceEvent.scoutid)
+		WHERE ScoreGamePieceEvent.gamePieceID = 'CB'
+		GROUP BY Scout.id
+	      	     ) AS CubesPerScout ON (RobotInMatch.ID = CubesPerScout.robotInMatchID)
+	GROUP BY RobotInMatch.id
+	      ) AS CubesPerMatch ON (Robot.TBAKey = CubesPerMatch.robotTBAKey)
+GROUP BY Robot.number
+ORDER BY "Average Cubes Scored" DESC;
+
 

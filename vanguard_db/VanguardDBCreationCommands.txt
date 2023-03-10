@@ -6,8 +6,8 @@
  *		2023 Scouting app Databse within psql
  *  
  *  Author: 	Cordelia Notbohm
- *  Version: 	1.1.0
- *  Date:    	3/3/23
+ *  Version: 	1.1.5
+ *  Date:    	3/9/23
  *
  */
 
