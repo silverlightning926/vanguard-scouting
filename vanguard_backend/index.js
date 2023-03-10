@@ -175,6 +175,31 @@ app.get("/loadEvent/:eventKey", (req, res) => {
   res.json({ status: "OK" }).end();
 });
 
+app.get("/getCompetitions", (req, res) => {
+  let queryString =
+    "SELECT * FROM competition ORDER BY competition.startdate DESC";
+  pool.query(queryString, (error, response) => {
+    if (error) {
+      console.log(error);
+      res.sendStatus(500);
+    } else {
+      res.status(200).json(response.rows);
+    }
+  });
+});
+
+app.get("/getMatches/:competitiontbakey", (req, res) => {
+  let queryString = `SELECT match.tbakey, match.matchtypeid, match.number FROM match WHERE match.competitiontbakey = '${req.params.competitiontbakey}' ORDER BY match.matchtypeid DESC, number::integer ASC`;
+  pool.query(queryString, (error, response) => {
+    if (error) {
+      console.log(error);
+      res.sendStatus(500);
+    } else {
+      res.status(200).json(response.rows);
+    }
+  });
+});
+
 app.get("/getTeam/:matchtbakey/:alliancestationid", (req, res) => {
   let queryString = `SELECT robotinmatch.id AS robotinmatchid, robot.tbakey, robot.number, robot.name FROM robotinmatch JOIN robot ON (robotinmatch.robottbakey = robot.tbakey) WHERE robotinmatch.matchtbakey = \'${req.params.matchtbakey}\' AND robotinmatch.alliancestationid = \'${req.params.alliancestationid}\'`;
   pool.query(queryString, (error, response) => {
