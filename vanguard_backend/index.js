@@ -104,62 +104,68 @@ app.get("/loadEvent/:eventKey", (req, res) => {
             "', '" +
             matchNumber +
             "')";
-          pool.query(temp).then(() => {
-            let redAlliance = match["alliances"]["red"]["team_keys"];
-            let blueAlliance = match["alliances"]["blue"]["team_keys"];
+          pool.query(temp, (error, response) => {
+            if (error) {
+              console.log(error);
+              res.sendStatus(500);
+            } else {
+              let redAlliance = match["alliances"]["red"]["team_keys"];
+              let blueAlliance = match["alliances"]["blue"]["team_keys"];
 
-            let robotinMatchQueryString =
-              "INSERT INTO robotinMatch (matchtbakey, robottbakey, alliancestationid) VALUES";
+              let robotinMatchQueryString =
+                "INSERT INTO robotinMatch (matchtbakey, robottbakey, alliancestationid) VALUES";
 
-            pool.query(
-              robotinMatchQueryString +
-                "('" +
-                matchKey +
-                "', '" +
-                redAlliance[0] +
-                "', 'R1')"
-            );
-            pool.query(
-              robotinMatchQueryString +
-                "('" +
-                matchKey +
-                "', '" +
-                redAlliance[1] +
-                "', 'R2')"
-            );
-            pool.query(
-              robotinMatchQueryString +
-                "('" +
-                matchKey +
-                "', '" +
-                redAlliance[2] +
-                "', 'R3')"
-            );
+              pool.query(
+                robotinMatchQueryString +
+                  "('" +
+                  matchKey +
+                  "', '" +
+                  redAlliance[0] +
+                  "', 'R1')"
+              );
+              pool.query(
+                robotinMatchQueryString +
+                  "('" +
+                  matchKey +
+                  "', '" +
+                  redAlliance[1] +
+                  "', 'R2')"
+              );
+              pool.query(
+                robotinMatchQueryString +
+                  "('" +
+                  matchKey +
+                  "', '" +
+                  redAlliance[2] +
+                  "', 'R3')"
+              );
 
-            pool.query(
-              robotinMatchQueryString +
-                "('" +
-                matchKey +
-                "', '" +
-                blueAlliance[0] +
-                "', 'B1')"
-            );
-            pool.query(
-              robotinMatchQueryString +
-                "('" +
-                matchKey +
-                "', '" +
-                blueAlliance[1] +
-                "', 'B2')"
-            );
-            pool.query(
-              robotinMatchQueryString +
-                "('" +
-                matchKey +
-                "', '" +
-                blueAlliance[2] +
-                "', 'B3')"
-            );
+              pool.query(
+                robotinMatchQueryString +
+                  "('" +
+                  matchKey +
+                  "', '" +
+                  blueAlliance[0] +
+                  "', 'B1')"
+              );
+              pool.query(
+                robotinMatchQueryString +
+                  "('" +
+                  matchKey +
+                  "', '" +
+                  blueAlliance[1] +
+                  "', 'B2')"
+              );
+              pool.query(
+                robotinMatchQueryString +
+                  "('" +
+                  matchKey +
+                  "', '" +
+                  blueAlliance[2] +
+                  "', 'B3')"
+              );
+              res.sendStatus(200);
+            }
           });
         });
       });
@@ -219,7 +225,6 @@ app.post("/addNotes/:scoutid", (req, res) => {
       console.log(error);
       res.sendStatus(500);
     } else {
-        
       res.sendStatus(200);
     }
   });
