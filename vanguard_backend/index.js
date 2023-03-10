@@ -164,7 +164,6 @@ app.get("/loadEvent/:eventKey", (req, res) => {
                   blueAlliance[2] +
                   "', 'B3')"
               );
-              res.sendStatus(200);
             }
           });
         });
@@ -176,28 +175,27 @@ app.get("/loadEvent/:eventKey", (req, res) => {
 });
 
 app.get("/getCompetitions", (req, res) => {
-  let queryString =
-    "SELECT * FROM competition ORDER BY competition.startdate DESC";
-  pool.query(queryString, (error, response) => {
-    if (error) {
-      console.log(error);
-      res.sendStatus(500);
-    } else {
-      res.status(200).json(response.rows);
-    }
-  });
+    let queryString = "SELECT * FROM competition ORDER BY competition.startdate DESC";
+    pool.query(queryString, (error, response) => {
+      if (error) {
+        console.log(error);
+        res.sendStatus(500);
+      } else {
+        res.status(200).json(response.rows);
+      }
+    });
 });
 
 app.get("/getMatches/:competitiontbakey", (req, res) => {
-  let queryString = `SELECT match.tbakey, match.matchtypeid, match.number FROM match WHERE match.competitiontbakey = '${req.params.competitiontbakey}' ORDER BY match.matchtypeid DESC, number::integer ASC`;
-  pool.query(queryString, (error, response) => {
-    if (error) {
-      console.log(error);
-      res.sendStatus(500);
-    } else {
-      res.status(200).json(response.rows);
-    }
-  });
+    let queryString = `SELECT match.tbakey, match.matchtypeid, match.number FROM match WHERE match.competitiontbakey = '${req.params.competitiontbakey}' ORDER BY match.matchtypeid DESC, number::integer ASC`;
+    pool.query(queryString, (error, response) => {
+        if (error) {
+            console.log(error);
+            res.sendStatus(500);
+        } else {
+            res.status(200).json(response.rows);
+        }
+    });
 });
 
 app.get("/getTeam/:matchtbakey/:alliancestationid", (req, res) => {
