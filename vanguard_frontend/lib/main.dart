@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:loader_overlay/loader_overlay.dart';
 import 'package:vanguard_frontend/screens/loading_screen.dart';
 
 void main() {
@@ -25,7 +26,9 @@ class Vanguard extends StatelessWidget {
           color: Colors.black,
         ),
       ),
-      home: const LoadingScreen(),
+      home: const LoaderOverlay(
+        child: LoadingScreen(),
+      ),
     );
   }
 }

@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:loader_overlay/loader_overlay.dart';
+import 'package:vanguard_frontend/managers/network_manager.dart';
+import 'package:vanguard_frontend/screens/match_select_screen.dart';
 import 'package:vanguard_frontend/serialized/competition.dart';
 
 class CompetitionSelectScreen extends StatefulWidget {
@@ -40,6 +43,15 @@ class _CompetitionSelectScreenState extends State<CompetitionSelectScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
+                Text(
+                  "Select Competition",
+                  style: Theme.of(context).textTheme.headline4?.copyWith(
+                        color: Theme.of(context).colorScheme.onPrimary,
+                      ),
+                ),
+                const SizedBox(
+                  height: 20,
+                ),
                 DropdownButton(
                   value: _selectedCompetition,
                   items: widget.competitions.map<DropdownMenuItem<Competition>>(
@@ -64,7 +76,22 @@ class _CompetitionSelectScreenState extends State<CompetitionSelectScreen> {
                   height: 20,
                 ),
                 ElevatedButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    context.loaderOverlay.show();
+                    NetworkManager.getMatches(_selectedCompetition.tbakey!)
+                        .then(
+                      (value) => {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => MatchSelectScreen(
+                              matches: value,
+                            ),
+                          ),
+                        ),
+                      },
+                    );
+                  },
                   child: const Text('Select'),
                 ),
               ],
