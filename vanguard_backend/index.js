@@ -221,7 +221,7 @@ app.post("/startMatch/:robotinmatchid/:preloadedpieceid", (req, res) => {
         if (error) {
           console.log(error);
         } else {
-          res.status(200).json(response.rows[0]);
+          res.sendStatus(200);
         }
       });
     }
