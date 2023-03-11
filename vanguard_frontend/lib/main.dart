@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:vanguard_frontend/screens/main_page.dart';
+import 'package:vanguard_frontend/screens/loading_screen.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -21,8 +21,11 @@ class Vanguard extends StatelessWidget {
       title: 'Vanguard Scouting',
       theme: ThemeData.dark().copyWith(
         scaffoldBackgroundColor: Colors.black,
+        appBarTheme: const AppBarTheme(
+          color: Colors.black,
+        ),
       ),
-      home: const MainPage(),
+      home: const LoadingScreen(),
     );
   }
 }
