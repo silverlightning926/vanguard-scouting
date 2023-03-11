@@ -134,7 +134,7 @@ PREPARE getRobotInMatchesForAllianceStation (varchar(12), char(2)) AS
 		JOIN Robot ON (RobotInMatch.RobotTBAKey = Robot.TBAKey)
 	WHERE Match.competitionTBAKey = $1 AND
 		RobotInMatch.allianceStationID = $2
-	ORDER BY Match.matchTypeID DESC, Match.number ASC;
+	ORDER BY Match.matchTypeID DESC, Match.number::integer ASC;
 
 -- example execute:
 -- EXECUTE getRobotInMatchesForAllianceStation('2023WASNO', 'R1');
@@ -305,6 +305,9 @@ PREPARE getCompetitions AS
 	FROM Competition;
 
 
+
+
+
 /*
  *	Query for getting all the competitions that have been 
  * 	loaded to the DB and have at least one scout entity entered
@@ -322,6 +325,9 @@ PREPARE getCompetitionWithMatchData AS
 -- example execute:
 -- EXECUTE getCompetitionWithMatchData;
 
+
+
+
 /*
  *	Query for calculating the average points scored 
  * 	during a single competition for a single robot at 
@@ -335,15 +341,16 @@ PREPARE getCompetitionWithMatchData AS
  * 	compeititon
  */ 
 
+
 /*
  * 	for a single robot 
  * 	for each of there matches, how did they contribute to the total score 
  */
 
 
- /*	
-	* how a robot scores improved 
-	*/
+/*	
+ * 	how a robot scores improved 
+ */
 
 
 /*
@@ -373,29 +380,29 @@ PREPARE getCompetitionWithMatchData AS
  */ 
 
 
-/*
- * 	Query for total cubes, total cones, total high, total medium, total low 
- * 	total ground pickup, total station pickup, total auto engage, total tele engage 
- */ 
 
-	
+
+
 
 
 /*
  * Query for average cones scored per match for each robot 
  */ 
 
-SELECT Robot.number, ROUND(AVG(conesInAMatch), 2) AS "Average Cones Scored"
+SELECT Robot.number AS "Team Number", 
+		ROUND(AVG(conesInAMatch), 2) AS "Average Cones Scored"
 FROM Robot
 	LEFT JOIN (
 	-- averages the total score cone events for all the 
 	-- scouts that scouted the same robotInMatch 
-	SELECT RobotInMatch.id, RobotInMatch.robotTBAKey, COALESCE(AVG(totalCones),0) AS conesInAMatch
+	SELECT RobotInMatch.id, RobotInMatch.robotTBAKey, 
+			COALESCE(AVG(totalCones),0) AS conesInAMatch
 	FROM RobotInMatch 
 		LEFT JOIN (
  		-- totals all of the score cone events that a single scout
  		-- added for a match 
- 		SELECT Scout.id, Scout.robotInMatchID, COALESCE(COUNT(ScoreGamePieceEvent.ID), 0) AS totalCones
+ 		SELECT Scout.id, Scout.robotInMatchID, 
+			COALESCE(COUNT(ScoreGamePieceEvent.ID), 0) AS totalCones
 		FROM Scout
 			LEFT JOIN ScoreGamePieceEvent ON (Scout.id = ScoreGamePieceEvent.scoutid)
 		WHERE ScoreGamePieceEvent.gamePieceID = 'CN'
@@ -407,21 +414,30 @@ GROUP BY Robot.number
 ORDER BY "Average Cones Scored" DESC;
 
 
+
+
+
+
+
+
 /*
  * Query for average cubes scored per match for each robot 
  */ 
 
-SELECT Robot.number, ROUND(AVG(cubesInAMatch), 2) AS "Average Cubes Scored"
+SELECT Robot.number AS "Team Number",
+		ROUND(AVG(cubesInAMatch), 2) AS "Average Cubes Scored"
 FROM Robot
 	LEFT JOIN (
 	-- averages the total score cone events for all the 
 	-- scouts that scouted the same robotInMatch 
-	SELECT RobotInMatch.id, RobotInMatch.robotTBAKey, COALESCE(AVG(totalCubes),0) AS cubesInAMatch
+	SELECT RobotInMatch.id, RobotInMatch.robotTBAKey, 
+			COALESCE(AVG(totalCubes),0) AS cubesInAMatch
 	FROM RobotInMatch 
 		LEFT JOIN (
  		-- totals all of the score cone events that a single scout
  		-- added for a match 
- 		SELECT Scout.id, Scout.robotInMatchID, COALESCE(COUNT(ScoreGamePieceEvent.ID), 0) AS totalCubes
+ 		SELECT Scout.id, Scout.robotInMatchID, 
+			COALESCE(COUNT(ScoreGamePieceEvent.ID), 0) AS totalCubes
 		FROM Scout
 			LEFT JOIN ScoreGamePieceEvent ON (Scout.id = ScoreGamePieceEvent.scoutid)
 		WHERE ScoreGamePieceEvent.gamePieceID = 'CB'
@@ -434,16 +450,23 @@ ORDER BY "Average Cubes Scored" DESC;
 
 
 
+
+
+
+
+
 /*
  * Query for average cones, and cubes scored per match for each robot 
  */ 
 
-SELECT Robot.number, ROUND(AVG(conesInAMatch), 2) AS "Average Cones Scored",
+SELECT Robot.number AS "Team Number", 
+		 ROUND(AVG(conesInAMatch), 2) AS "Average Cones Scored",
 		 ROUND(AVG(cubesInAMatch), 2) AS "Average Cubes Scored"
 FROM Robot
 	LEFT JOIN (
 
-	-- averages the total score cone events for all the 
+	-- averages the total score cone events 
+     	-- and score cubes events for all the 
 	-- scouts that scouted the same robotInMatch 
 	SELECT RobotInMatch.id, RobotInMatch.robotTBAKey, 
 		COALESCE(AVG(totalCones),0) AS conesInAMatch,
@@ -451,7 +474,8 @@ FROM Robot
 	FROM RobotInMatch 
 		LEFT JOIN (
 
- 		-- totals all of the score cone events that a single scout
+ 		-- totals all of the score cone events 
+		-- and score cubes events that a single scout
  		-- added for a match 
  		SELECT Scout.id, Scout.robotInMatchID, 
 			COALESCE(COUNT(ScoreGamePieceEvent.gamePieceID = 'CN' OR NULL), 0) 
@@ -459,9 +483,11 @@ FROM Robot
 			COALESCE(COUNT(ScoreGamePieceEvent.gamePieceID = 'CB' OR NULL), 0) 
 			AS totalCubes
 		FROM Scout
-			LEFT JOIN ScoreGamePieceEvent ON (Scout.id = ScoreGamePieceEvent.scoutid)
+			LEFT JOIN ScoreGamePieceEvent ON 
+				(Scout.id = ScoreGamePieceEvent.scoutid)
 		GROUP BY Scout.id
-	      	     ) AS PiecesPerScout ON (RobotInMatch.ID = PiecesPerScout.robotInMatchID)
+	      	     ) AS PiecesPerScout ON 
+				(RobotInMatch.ID = PiecesPerScout.robotInMatchID)
 
 	GROUP BY RobotInMatch.id
 	      ) AS PiecesPerMatch ON (Robot.TBAKey = PiecesPerMatch.robotTBAKey)
@@ -469,3 +495,456 @@ FROM Robot
 GROUP BY Robot.number
 ORDER BY Robot.number::integer ASC;
 
+
+
+
+
+
+
+/*
+ * 	Query for avg cubes, avg cones, avg high, avg medium, avg low 
+ */ 
+
+SELECT Robot.number AS "Team Number", 
+		ROUND(AVG(conesInAMatch), 2) AS "AVG Cones",
+		ROUND(AVG(cubesInAMatch), 2) AS "AVG Cubes",
+		ROUND(AVG(highInAMatch), 2) AS "AVG High",
+		ROUND(AVG(middleInAMatch), 2) AS "AVG Middle",
+		ROUND(AVG(lowInAMatch), 2) AS "AVG Low"
+FROM Robot
+	LEFT JOIN (
+
+	-- averages the total score events for all the 
+	-- scouts that scouted the same robotInMatch 
+	SELECT RobotInMatch.id, RobotInMatch.robotTBAKey, 
+		COALESCE(AVG(totalCones),0) AS conesInAMatch,
+		COALESCE(AVG(totalCubes),0) AS cubesInAMatch,
+		COALESCE(AVG(totalHigh),0) AS highInAMatch,
+		COALESCE(AVG(totalMiddle),0) AS middleInAMatch,
+		COALESCE(AVG(totalLow),0) AS lowInAMatch
+	FROM RobotInMatch 
+		LEFT JOIN (
+
+ 		-- totals all of the score events that a single scout
+ 		-- added for a match 
+ 		SELECT Scout.id, Scout.robotInMatchID, 
+			COALESCE(COUNT(ScoreGamePieceEvent.gamePieceID = 'CN' OR NULL), 0) 
+			AS totalCones,
+			COALESCE(COUNT(ScoreGamePieceEvent.gamePieceID = 'CB' OR NULL), 0) 
+			AS totalCubes,
+			COALESCE(COUNT(ScoringLocation.level = 'High' OR NULL), 0) 
+			AS totalHigh,
+			COALESCE(COUNT(ScoringLocation.level = 'Middle' OR NULL), 0) 
+			AS totalMiddle,
+			COALESCE(COUNT(ScoringLocation.level = 'Low' OR NULL), 0) 
+			AS totalLow
+		FROM Scout
+			LEFT JOIN ScoreGamePieceEvent ON 
+				(Scout.id = ScoreGamePieceEvent.scoutid)
+			JOIN ScoringLocation ON 
+				(ScoreGamePieceEvent.scoringLocationID = ScoringLocation.ID)
+		GROUP BY Scout.id
+	      	     ) AS PiecesPerScout ON (RobotInMatch.ID = PiecesPerScout.robotInMatchID)
+
+	GROUP BY RobotInMatch.id
+	      ) AS PiecesPerMatch ON (Robot.TBAKey = PiecesPerMatch.robotTBAKey)
+
+GROUP BY Robot.number
+ORDER BY "AVG High" DESC, "AVG Middle" DESC, "AVG Low" DESC;
+
+
+
+
+
+
+
+/*
+ * 	Query for avg cubes, avg cones, avg high, avg medium, avg low 
+ * 	avg ground pickup, avg station pickup, avg auto engage, avg tele engage 
+ */ 
+
+
+
+
+
+
+
+/*
+ * 	Query for getting all of a team's events for 
+ * 	the automonous period of each of their matches
+ * 	at a given competition 
+ * 	-- needs a robot numner and a competition TBA key
+ */ 
+
+PREPARE getAutoEventsRobotInCompetition (varchar(6), varchar(12)) AS
+SELECT 	Robot.number AS "Team Number",
+	MatchType.name || ' ' || Match.number AS "Match Number",
+	Scout.ID AS "Scout",
+	'Score Piece' AS "Event", 
+	ScoreGamePieceEvent.scoringLocationID AS "Type",
+	GamePiece.name AS "Piece",
+	ScoreGamePieceEvent.matchPeriodID AS "Period",
+	ScoreGamePieceEvent.timeOccurred::time
+FROM RobotInMatch 
+	LEFT JOIN Scout ON (RobotInMatch.ID = Scout.robotInMatchID)
+	JOIN ScoreGamePieceEvent ON (Scout.ID = ScoreGamePieceEvent.scoutID)
+	JOIN GamePiece ON (ScoreGamePieceEvent.gamePieceID = GamePiece.ID)
+	JOIN Robot ON (RobotInMatch.robotTBAKey = Robot.TBAKey)
+	JOIN Match ON (RobotInMatch.matchTBAKey = Match.TBAKey)
+	JOIN Competition ON (Match.competitionTBAKey = Competition.TBAKey)
+	JOIN MatchType ON (Match.matchTypeID = MatchType.ID)
+WHERE Robot.number = $1 AND Competition.TBAKey = $2 AND ScoreGamePieceEvent.matchPeriodID = 'A'
+
+UNION 
+
+SELECT 	Robot.number AS "Team Number",
+	MatchType.name || ' ' || Match.number AS "Match Number",
+	Scout.ID AS "Scout",
+	'Pickup' AS "Event", 
+	PickupLocation.name AS "Type",
+	GamePiece.name AS "Piece",
+	PickUpGamePieceEvent.matchPeriodID AS "Period",
+	PickUpGamePieceEvent.timeOccurred::time
+FROM RobotInMatch 
+	LEFT JOIN Scout ON (RobotInMatch.ID = Scout.robotInMatchID)
+	JOIN PickUpGamePieceEvent ON (Scout.ID = PickUpGamePieceEvent.scoutID)
+	JOIN PickUpLocation ON 
+		(PickUpGamePieceEvent.pickupLocationID = PickUpLocation.ID)
+	JOIN GamePiece ON (PickUpGamePieceEvent.gamePieceID = GamePiece.ID)
+	JOIN Robot ON (RobotInMatch.robotTBAKey = Robot.TBAKey)
+	JOIN Match ON (RobotInMatch.matchTBAKey = Match.TBAKey)
+	JOIN Competition ON (Match.competitionTBAKey = Competition.TBAKey)
+	JOIN MatchType ON (Match.matchTypeID = MatchType.ID)
+WHERE Robot.number = $1 AND Competition.TBAKey = $2 AND PickUpGamePieceEvent.matchPeriodID = 'A'
+
+UNION
+
+SELECT 	Robot.number AS "Team Number",
+	MatchType.name || ' ' || Match.number AS "Match Number",
+	Scout.ID AS "Scout",
+	'Score' AS "Event", 
+	NonGamePieceScoringType.name AS "Type",
+	NULL AS "Piece",
+	ScoreWithoutGamePieceEvent.matchPeriodID AS "Period",
+	ScoreWithoutGamePieceEvent.timeOccurred::time
+FROM RobotInMatch 
+	LEFT JOIN Scout ON (RobotInMatch.ID = Scout.robotInMatchID)
+	JOIN ScoreWithoutGamePieceEvent ON (Scout.ID = ScoreWithoutGamePieceEvent.scoutID)
+	JOIN NonGamePieceScoringType ON 
+		(ScoreWithoutGamePieceEvent.nonGamePieceScoringTypeID = NonGamePieceScoringType.ID)
+	JOIN Robot ON (RobotInMatch.robotTBAKey = Robot.TBAKey)
+	JOIN Match ON (RobotInMatch.matchTBAKey = Match.TBAKey)
+	JOIN Competition ON (Match.competitionTBAKey = Competition.TBAKey)
+	JOIN MatchType ON (Match.matchTypeID = MatchType.ID)
+WHERE Robot.number = $1 AND Competition.TBAKey = $2 AND ScoreWithoutGamePieceEvent.matchPeriodID = 'A'
+
+UNION
+
+SELECT 	Robot.number AS "Team Number",
+	MatchType.name || ' ' || Match.number AS "Match Number",
+	Scout.ID AS "Scout",
+	'Fault' AS "Event", 
+	FaultType.name AS "Type",
+	NULL AS "Piece",
+	FaultEvent.matchPeriodID AS "Period",
+	FaultEvent.timeOccurred::time
+FROM RobotInMatch 
+	LEFT JOIN Scout ON (RobotInMatch.ID = Scout.robotInMatchID)
+	JOIN FaultEvent ON (Scout.ID = FaultEvent.scoutID)
+	JOIN FaultType ON (FaultEvent.faultTypeID = FaultType.ID)
+	JOIN Robot ON (RobotInMatch.robotTBAKey = Robot.TBAKey)
+	JOIN Match ON (RobotInMatch.matchTBAKey = Match.TBAKey)
+	JOIN Competition ON (Match.competitionTBAKey = Competition.TBAKey)
+	JOIN MatchType ON (Match.matchTypeID = MatchType.ID)
+WHERE Robot.number = $1 AND Competition.TBAKey = $2 AND FaultEvent.matchPeriodID = 'A'
+
+ORDER BY "Scout" ASC, timeOccurred ASC;
+
+-- example execute:
+-- EXECUTE getAutoEventsRobotInCompetition ('2930', '2023WATEST');
+
+
+
+
+
+
+/*
+ * 	Query for getting all of a team's events for 
+ * 	of each of their matches
+ * 	at a given competition 
+ * 	-- needs a robot number and a competition key
+ */ 
+
+PREPARE getEventsRobotInCompetition (varchar(6), varchar(12)) AS
+SELECT 	Robot.number AS "Team Number",
+	MatchType.name || ' ' || Match.number AS "Match Number",
+	Scout.ID AS "Scout",
+	'Score Piece' AS "Event", 
+	ScoreGamePieceEvent.scoringLocationID AS "Type",
+	GamePiece.name AS "Piece",
+	ScoreGamePieceEvent.matchPeriodID AS "Period",
+	ScoreGamePieceEvent.timeOccurred::time
+FROM RobotInMatch 
+	LEFT JOIN Scout ON (RobotInMatch.ID = Scout.robotInMatchID)
+	JOIN ScoreGamePieceEvent ON (Scout.ID = ScoreGamePieceEvent.scoutID)
+	JOIN GamePiece ON (ScoreGamePieceEvent.gamePieceID = GamePiece.ID)
+	JOIN Robot ON (RobotInMatch.robotTBAKey = Robot.TBAKey)
+	JOIN Match ON (RobotInMatch.matchTBAKey = Match.TBAKey)
+	JOIN Competition ON (Match.competitionTBAKey = Competition.TBAKey)
+	JOIN MatchType ON (Match.matchTypeID = MatchType.ID)
+WHERE Robot.number = $1 AND Competition.TBAKey = $2
+
+UNION 
+
+SELECT 	Robot.number AS "Team Number",
+	MatchType.name || ' ' || Match.number AS "Match Number",
+	Scout.ID AS "Scout",
+	'Pickup' AS "Event", 
+	PickupLocation.name AS "Type",
+	GamePiece.name AS "Piece",
+	PickUpGamePieceEvent.matchPeriodID AS "Period",
+	PickUpGamePieceEvent.timeOccurred::time
+FROM RobotInMatch 
+	LEFT JOIN Scout ON (RobotInMatch.ID = Scout.robotInMatchID)
+	JOIN PickUpGamePieceEvent ON (Scout.ID = PickUpGamePieceEvent.scoutID)
+	JOIN PickUpLocation ON 
+		(PickUpGamePieceEvent.pickupLocationID = PickUpLocation.ID)
+	JOIN GamePiece ON (PickUpGamePieceEvent.gamePieceID = GamePiece.ID)
+	JOIN Robot ON (RobotInMatch.robotTBAKey = Robot.TBAKey)
+	JOIN Match ON (RobotInMatch.matchTBAKey = Match.TBAKey)
+	JOIN Competition ON (Match.competitionTBAKey = Competition.TBAKey)
+	JOIN MatchType ON (Match.matchTypeID = MatchType.ID)
+WHERE Robot.number = $1 AND Competition.TBAKey = $2
+
+UNION
+
+SELECT 	Robot.number AS "Team Number",
+	MatchType.name || ' ' || Match.number AS "Match Number",
+	Scout.ID AS "Scout",
+	'Score' AS "Event", 
+	NonGamePieceScoringType.name AS "Type",
+	NULL AS "Piece",
+	ScoreWithoutGamePieceEvent.matchPeriodID AS "Period",
+	ScoreWithoutGamePieceEvent.timeOccurred::time
+FROM RobotInMatch 
+	LEFT JOIN Scout ON (RobotInMatch.ID = Scout.robotInMatchID)
+	JOIN ScoreWithoutGamePieceEvent ON (Scout.ID = ScoreWithoutGamePieceEvent.scoutID)
+	JOIN NonGamePieceScoringType ON 
+		(ScoreWithoutGamePieceEvent.nonGamePieceScoringTypeID = NonGamePieceScoringType.ID)
+	JOIN Robot ON (RobotInMatch.robotTBAKey = Robot.TBAKey)
+	JOIN Match ON (RobotInMatch.matchTBAKey = Match.TBAKey)
+	JOIN Competition ON (Match.competitionTBAKey = Competition.TBAKey)
+	JOIN MatchType ON (Match.matchTypeID = MatchType.ID)
+WHERE Robot.number = $1 AND Competition.TBAKey = $2
+
+UNION
+
+SELECT 	Robot.number AS "Team Number",
+	MatchType.name || ' ' || Match.number AS "Match Number",
+	Scout.ID AS "Scout",
+	'Fault' AS "Event", 
+	FaultType.name AS "Type",
+	NULL AS "Piece",
+	FaultEvent.matchPeriodID AS "Period",
+	FaultEvent.timeOccurred::time
+FROM RobotInMatch 
+	LEFT JOIN Scout ON (RobotInMatch.ID = Scout.robotInMatchID)
+	JOIN FaultEvent ON (Scout.ID = FaultEvent.scoutID)
+	JOIN FaultType ON (FaultEvent.faultTypeID = FaultType.ID)
+	JOIN Robot ON (RobotInMatch.robotTBAKey = Robot.TBAKey)
+	JOIN Match ON (RobotInMatch.matchTBAKey = Match.TBAKey)
+	JOIN Competition ON (Match.competitionTBAKey = Competition.TBAKey)
+	JOIN MatchType ON (Match.matchTypeID = MatchType.ID)
+WHERE Robot.number = $1 AND Competition.TBAKey = $2
+
+ORDER BY "Scout" ASC, timeOccurred ASC;
+
+-- example execute:
+-- EXECUTE getEventsRobotInCompetition ('2930', '2023WATEST');
+
+
+
+
+
+
+/*
+ * 	Query for getting all of a team's events for 
+ * 	the automonous period of a given match
+ * 	-- needs a robot number and a matchTBAKey 
+ */ 
+
+PREPARE getAutoEventsRobotInMatch (varchar(6), varchar(20)) AS
+SELECT 	Robot.number AS "Team Number",
+	MatchType.name || ' ' || Match.number AS "Match Number",
+	Scout.ID AS "Scout",
+	'Score Piece' AS "Event", 
+	ScoreGamePieceEvent.scoringLocationID AS "Type",
+	GamePiece.name AS "Piece",
+	ScoreGamePieceEvent.matchPeriodID AS "Period",
+	ScoreGamePieceEvent.timeOccurred::time
+FROM RobotInMatch 
+	LEFT JOIN Scout ON (RobotInMatch.ID = Scout.robotInMatchID)
+	JOIN ScoreGamePieceEvent ON (Scout.ID = ScoreGamePieceEvent.scoutID)
+	JOIN GamePiece ON (ScoreGamePieceEvent.gamePieceID = GamePiece.ID)
+	JOIN Robot ON (RobotInMatch.robotTBAKey = Robot.TBAKey)
+	JOIN Match ON (RobotInMatch.matchTBAKey = Match.TBAKey)
+	JOIN MatchType ON (Match.matchTypeID = MatchType.ID)
+WHERE Robot.number = $1 AND Match.TBAKey = $2 AND ScoreGamePieceEvent.matchPeriodID = 'A'
+
+UNION 
+
+SELECT 	Robot.number AS "Team Number",
+	MatchType.name || ' ' || Match.number AS "Match Number",
+	Scout.ID AS "Scout",
+	'Pickup' AS "Event", 
+	PickupLocation.name AS "Type",
+	GamePiece.name AS "Piece",
+	PickUpGamePieceEvent.matchPeriodID AS "Period",
+	PickUpGamePieceEvent.timeOccurred::time
+FROM RobotInMatch 
+	LEFT JOIN Scout ON (RobotInMatch.ID = Scout.robotInMatchID)
+	JOIN PickUpGamePieceEvent ON (Scout.ID = PickUpGamePieceEvent.scoutID)
+	JOIN PickUpLocation ON 
+		(PickUpGamePieceEvent.pickupLocationID = PickUpLocation.ID)
+	JOIN GamePiece ON (PickUpGamePieceEvent.gamePieceID = GamePiece.ID)
+	JOIN Robot ON (RobotInMatch.robotTBAKey = Robot.TBAKey)
+	JOIN Match ON (RobotInMatch.matchTBAKey = Match.TBAKey)
+	JOIN MatchType ON (Match.matchTypeID = MatchType.ID)
+WHERE Robot.number = $1 AND Match.TBAKey = $2 AND PickUpGamePieceEvent.matchPeriodID = 'A'
+
+UNION
+
+SELECT 	Robot.number AS "Team Number",
+	MatchType.name || ' ' || Match.number AS "Match Number",
+	Scout.ID AS "Scout",
+	'Score' AS "Event", 
+	NonGamePieceScoringType.name AS "Type",
+	NULL AS "Piece",
+	ScoreWithoutGamePieceEvent.matchPeriodID AS "Period",
+	ScoreWithoutGamePieceEvent.timeOccurred::time
+FROM RobotInMatch 
+	LEFT JOIN Scout ON (RobotInMatch.ID = Scout.robotInMatchID)
+	JOIN ScoreWithoutGamePieceEvent ON (Scout.ID = ScoreWithoutGamePieceEvent.scoutID)
+	JOIN NonGamePieceScoringType ON 
+		(ScoreWithoutGamePieceEvent.nonGamePieceScoringTypeID = NonGamePieceScoringType.ID)
+	JOIN Robot ON (RobotInMatch.robotTBAKey = Robot.TBAKey)
+	JOIN Match ON (RobotInMatch.matchTBAKey = Match.TBAKey)
+	JOIN MatchType ON (Match.matchTypeID = MatchType.ID)
+WHERE Robot.number = $1 AND Match.TBAKey = $2 AND ScoreWithoutGamePieceEvent.matchPeriodID = 'A'
+
+UNION
+
+SELECT 	Robot.number AS "Team Number",
+	MatchType.name || ' ' || Match.number AS "Match Number",
+	Scout.ID AS "Scout",
+	'Fault' AS "Event", 
+	FaultType.name AS "Type",
+	NULL AS "Piece",
+	FaultEvent.matchPeriodID AS "Period",
+	FaultEvent.timeOccurred::time
+FROM RobotInMatch 
+	LEFT JOIN Scout ON (RobotInMatch.ID = Scout.robotInMatchID)
+	JOIN FaultEvent ON (Scout.ID = FaultEvent.scoutID)
+	JOIN FaultType ON (FaultEvent.faultTypeID = FaultType.ID)
+	JOIN Robot ON (RobotInMatch.robotTBAKey = Robot.TBAKey)
+	JOIN Match ON (RobotInMatch.matchTBAKey = Match.TBAKey)
+	JOIN MatchType ON (Match.matchTypeID = MatchType.ID)
+WHERE Robot.number = $1 AND Match.TBAKey = $2 AND FaultEvent.matchPeriodID = 'A'
+
+ORDER BY "Scout" ASC, timeOccurred ASC;
+
+-- example execute:
+-- EXECUTE getAutoEventsRobotInMatch ('2930', '2023WATEST_qm1');
+
+
+
+
+
+/*
+ * 	Query for getting all of a team's events for 
+ * 	a given match 
+ * 	-- needs a robot number and a matchTBAkey
+ */ 
+
+PREPARE getEventsRobotInMatch (varchar(6), varchar(20)) AS
+SELECT 	Robot.number AS "Team Number",
+	MatchType.name || ' ' || Match.number AS "Match Number",
+	Scout.ID AS "Scout",
+	'Score Piece' AS "Event", 
+	ScoreGamePieceEvent.scoringLocationID AS "Type",
+	GamePiece.name AS "Piece",
+	ScoreGamePieceEvent.matchPeriodID AS "Period",
+	ScoreGamePieceEvent.timeOccurred::time
+FROM RobotInMatch 
+	LEFT JOIN Scout ON (RobotInMatch.ID = Scout.robotInMatchID)
+	JOIN ScoreGamePieceEvent ON (Scout.ID = ScoreGamePieceEvent.scoutID)
+	JOIN GamePiece ON (ScoreGamePieceEvent.gamePieceID = GamePiece.ID)
+	JOIN Robot ON (RobotInMatch.robotTBAKey = Robot.TBAKey)
+	JOIN Match ON (RobotInMatch.matchTBAKey = Match.TBAKey)
+	JOIN MatchType ON (Match.matchTypeID = MatchType.ID)
+WHERE Robot.number = $1 AND Match.TBAKey = $2
+
+UNION 
+
+SELECT 	Robot.number AS "Team Number",
+	MatchType.name || ' ' || Match.number AS "Match Number",
+	Scout.ID AS "Scout",
+	'Pickup' AS "Event", 
+	PickupLocation.name AS "Type",
+	GamePiece.name AS "Piece",
+	PickUpGamePieceEvent.matchPeriodID AS "Period",
+	PickUpGamePieceEvent.timeOccurred::time
+FROM RobotInMatch 
+	LEFT JOIN Scout ON (RobotInMatch.ID = Scout.robotInMatchID)
+	JOIN PickUpGamePieceEvent ON (Scout.ID = PickUpGamePieceEvent.scoutID)
+	JOIN PickUpLocation ON 
+		(PickUpGamePieceEvent.pickupLocationID = PickUpLocation.ID)
+	JOIN GamePiece ON (PickUpGamePieceEvent.gamePieceID = GamePiece.ID)
+	JOIN Robot ON (RobotInMatch.robotTBAKey = Robot.TBAKey)
+	JOIN Match ON (RobotInMatch.matchTBAKey = Match.TBAKey)
+	JOIN MatchType ON (Match.matchTypeID = MatchType.ID)
+WHERE Robot.number = $1 AND Match.TBAKey = $2
+
+UNION
+
+SELECT 	Robot.number AS "Team Number",
+	MatchType.name || ' ' || Match.number AS "Match Number",
+	Scout.ID AS "Scout",
+	'Score' AS "Event", 
+	NonGamePieceScoringType.name AS "Type",
+	NULL AS "Piece",
+	ScoreWithoutGamePieceEvent.matchPeriodID AS "Period",
+	ScoreWithoutGamePieceEvent.timeOccurred::time
+FROM RobotInMatch 
+	LEFT JOIN Scout ON (RobotInMatch.ID = Scout.robotInMatchID)
+	JOIN ScoreWithoutGamePieceEvent ON (Scout.ID = ScoreWithoutGamePieceEvent.scoutID)
+	JOIN NonGamePieceScoringType ON 
+		(ScoreWithoutGamePieceEvent.nonGamePieceScoringTypeID = NonGamePieceScoringType.ID)
+	JOIN Robot ON (RobotInMatch.robotTBAKey = Robot.TBAKey)
+	JOIN Match ON (RobotInMatch.matchTBAKey = Match.TBAKey)
+	JOIN MatchType ON (Match.matchTypeID = MatchType.ID)
+WHERE Robot.number = $1 AND Match.TBAKey = $2
+
+UNION
+
+SELECT 	Robot.number AS "Team Number",
+	MatchType.name || ' ' || Match.number AS "Match Number",
+	Scout.ID AS "Scout",
+	'Fault' AS "Event", 
+	FaultType.name AS "Type",
+	NULL AS "Piece",
+	FaultEvent.matchPeriodID AS "Period",
+	FaultEvent.timeOccurred::time
+FROM RobotInMatch 
+	LEFT JOIN Scout ON (RobotInMatch.ID = Scout.robotInMatchID)
+	JOIN FaultEvent ON (Scout.ID = FaultEvent.scoutID)
+	JOIN FaultType ON (FaultEvent.faultTypeID = FaultType.ID)
+	JOIN Robot ON (RobotInMatch.robotTBAKey = Robot.TBAKey)
+	JOIN Match ON (RobotInMatch.matchTBAKey = Match.TBAKey)
+	JOIN MatchType ON (Match.matchTypeID = MatchType.ID)
+WHERE Robot.number = $1 AND Match.TBAKey = $2
+
+ORDER BY "Scout" ASC, timeOccurred ASC;
+
+-- example execute:
+-- EXECUTE getEventsRobotInMatch ('2930', '2023WATEST_qm1');
