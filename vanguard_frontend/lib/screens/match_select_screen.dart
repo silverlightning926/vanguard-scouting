@@ -136,7 +136,6 @@ class _MatchSelectScreenState extends State<MatchSelectScreen> {
                           ),
                         ),
                       ),
-                      context.loaderOverlay.hide(),
                     },
                   );
                 },

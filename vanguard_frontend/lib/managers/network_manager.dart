@@ -12,6 +12,7 @@ class NetworkManager {
   static const String _competitionsEndpoint = '/getCompetitions';
   static const String _matchesEndpoint = '/getMatches';
   static const String _robotEndpoint = '/getTeam';
+  static const String _startMatchEndpoint = '/startMatch';
 
   static Future<bool> isAlive() async {
     http.Response response = await http.get(
@@ -40,12 +41,18 @@ class NetworkManager {
 
   static Future<Robot> getRobot(
       String matchKey, String allianceStationID) async {
-    Uri uri =
-        Uri.http(_baseURL, '$_robotEndpoint/$matchKey/$allianceStationID');
-    print(uri);
     http.Response response = await http.get(
-      uri,
+      Uri.http(_baseURL, '$_robotEndpoint/$matchKey/$allianceStationID'),
     );
     return Robot.fromJson(json.jsonDecode(response.body));
+  }
+
+  static Future<bool> startMatch(
+      int robotInMatchID, String preloadPiece) async {
+    http.Response response = await http.post(
+      Uri.http(_baseURL, '$_startMatchEndpoint/$robotInMatchID/$preloadPiece'),
+    );
+
+    return response.statusCode == 200;
   }
 }
