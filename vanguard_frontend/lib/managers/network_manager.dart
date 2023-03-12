@@ -6,7 +6,7 @@ import 'package:vanguard_frontend/serialized/match.dart';
 import 'package:vanguard_frontend/serialized/robot.dart';
 
 class NetworkManager {
-  static const String _baseURL = '10.0.0.217:3000';
+  static const String _baseURL = '10.0.2.2:3000';
 
   static const String _statusEndpoint = '/status';
   static const String _competitionsEndpoint = '/getCompetitions';
