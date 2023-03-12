@@ -14,7 +14,7 @@ class StartScoutScreen extends StatefulWidget {
 }
 
 class _StartScoutScreenState extends State<StartScoutScreen> {
-  final List<bool> _isSelected = <bool>[false, false, false];
+  final List<bool> _isSelected = <bool>[true, false, false];
 
   @override
   void initState() {
