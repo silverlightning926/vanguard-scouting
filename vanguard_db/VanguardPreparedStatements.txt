@@ -411,10 +411,17 @@ ORDER BY "Average Points" DESC;
 
 
 
+
+
+
 /*
  * 	for a single robot 
  * 	for each of there matches, how did they contribute to the total score 
  */
+
+
+
+
 
 
 /*	
@@ -422,26 +429,252 @@ ORDER BY "Average Points" DESC;
  */
 
 
+
+
+
+
+
+
 /*
  * 	Query for ranking robots according to 
  * 	a specified game peice and level
  */ 
+
+PREPARE getAverageTimesScoredPieceAtLevel(varchar(12), varchar(10)) AS
+SELECT Robot.number AS "Team Number", Robot.name AS "Team Name", 
+		ROUND(AVG(scoredInAMatch), 2) AS "AVG Number Scored"
+FROM Robot
+	LEFT JOIN (
+
+	-- averages the total score events for all the 
+	-- scouts that scouted the same robotInMatch 
+	SELECT RobotInMatch.id, RobotInMatch.robotTBAKey, 
+		COALESCE(AVG(totalScored),0) AS scoredInAMatch
+	FROM RobotInMatch 
+		LEFT JOIN (
+
+ 		-- totals all of the score events that a single scout
+ 		-- added for a match 
+ 		SELECT Scout.id, Scout.robotInMatchID, 
+			COALESCE(COUNT(*) FILTER (WHERE GamePiece.name = $1
+			AND ScoringLocation.level = $2), 0) AS totalScored
+		FROM Scout
+			LEFT JOIN ScoreGamePieceEvent ON 
+				(Scout.id = ScoreGamePieceEvent.scoutid)
+			JOIN ScoringLocation ON 
+				(ScoreGamePieceEvent.scoringLocationID = ScoringLocation.ID)
+			JOIN GamePiece ON 
+				(ScoreGamePieceEvent.gamePieceID = GamePiece.ID)
+		GROUP BY Scout.id
+	      	     ) AS PiecesPerScout ON (RobotInMatch.ID = PiecesPerScout.robotInMatchID)
+
+	GROUP BY RobotInMatch.id
+	      ) AS PiecesPerMatch ON (Robot.TBAKey = PiecesPerMatch.robotTBAKey)
+
+GROUP BY Robot.TBAKey
+ORDER BY "AVG Number Scored" DESC;
+
+-- example execute:
+-- EXECUTE getAverageTimesScoredPieceAtLevel('Cone', 'High');
+
+
+
+
+
+
+
 
 
 /*
  * 	Query for ranking robots according to 
  * 	a specified non-game piece scoring type
  */ 
+PREPARE getAverageTimesScoredPieceAtLevel(varchar(12), varchar(10)) AS
+SELECT Robot.number AS "Team Number", Robot.name AS "Team Name", 
+		ROUND(AVG(scoredInAMatch), 2) AS "AVG Number Scored"
+FROM Robot
+	LEFT JOIN (
+
+	-- averages the total score events for all the 
+	-- scouts that scouted the same robotInMatch 
+	SELECT RobotInMatch.id, RobotInMatch.robotTBAKey, 
+		COALESCE(AVG(totalScored),0) AS scoredInAMatch
+	FROM RobotInMatch 
+		LEFT JOIN (
+
+ 		-- totals all of the score events that a single scout
+ 		-- added for a match 
+ 		SELECT Scout.id, Scout.robotInMatchID, 
+			COALESCE(COUNT(*) FILTER (WHERE GamePiece.name = $1
+			AND ScoringLocation.level = $2), 0) AS totalScored
+		FROM Scout
+			LEFT JOIN ScoreGamePieceEvent ON 
+				(Scout.id = ScoreGamePieceEvent.scoutid)
+			JOIN ScoringLocation ON 
+				(ScoreGamePieceEvent.scoringLocationID = ScoringLocation.ID)
+			JOIN GamePiece ON 
+				(ScoreGamePieceEvent.gamePieceID = GamePiece.ID)
+		GROUP BY Scout.id
+	      	     ) AS PiecesPerScout ON (RobotInMatch.ID = PiecesPerScout.robotInMatchID)
+
+	GROUP BY RobotInMatch.id
+	      ) AS PiecesPerMatch ON (Robot.TBAKey = PiecesPerMatch.robotTBAKey)
+
+GROUP BY Robot.TBAKey
+ORDER BY "AVG Number Scored" DESC;
+
+
+
+
+
+
 
 
 /*
  *	Query for categorizing robots
  */ 
+SELECT "Team Number",	
+	CASE WHEN "AVG High Cones" > "Total AVG High Cones" THEN 'High Cone Scorer'
+	WHEN "AVG High Cubes" > "Total AVG High Cubes" THEN 'High Cube Scorer'
+	WHEN ("AVG Middle Cones" + "AVG Low Cones") > "Total AVG Middle Cones" + 
+		"Total AVG Low Cones" THEN 'Low Cone Scorer'
+	WHEN ("AVG Middle Cubes" + "AVG Low Cubes") > "Total AVG Middle Cubes" + 
+		"Total AVG Low Cubes" THEN 'Low Cube Scorer'
+	ELSE 'Defense Bot'
+	END AS "Category"
+
+FROM (
+
+    SELECT Robot.number AS "Team Number", 
+		    ROUND(AVG(highConesInAMatch), 2) AS "AVG High Cones",
+		    ROUND(AVG(middleConesInAMatch), 2) AS "AVG Middle Cones",
+		    ROUND(AVG(lowConesInAMatch), 2) AS "AVG Low Cones",
+		    ROUND(AVG(highCubesInAMatch), 2) AS "AVG High Cubes",
+		    ROUND(AVG(middleCubesInAMatch), 2) AS "AVG Middle Cubes",
+		    ROUND(AVG(lowCubesInAMatch), 2) AS "AVG Low Cubes"
+    FROM Robot
+	    LEFT JOIN (
+
+	    -- averages the total score events for all the 
+	    -- scouts that scouted the same robotInMatch 
+	    SELECT RobotInMatch.id, RobotInMatch.robotTBAKey, 
+		    COALESCE(AVG(totalHighCones), 0) AS highConesInAMatch,
+		    COALESCE(AVG(totalMiddleCones), 0) AS middleConesInAMatch,
+		    COALESCE(AVG(totalLowCones), 0) AS lowConesInAMatch,
+		    COALESCE(AVG(totalHighCubes), 0) AS highCubesInAMatch,
+		    COALESCE(AVG(totalMiddleCubes), 0) AS middleCubesInAMatch,
+		    COALESCE(AVG(totalLowCubes), 0) AS lowCubesInAMatch
+	    FROM RobotInMatch 
+		    LEFT JOIN (
+
+ 		    -- totals all of the score events that a single scout
+ 		    -- added for a match 
+ 		    SELECT Scout.id, Scout.robotInMatchID, 
+			COALESCE(COUNT(*) FILTER (WHERE ScoreGamePieceEvent.gamePieceID = 'CN' 
+			AND ScoringLocation.level = 'High'), 0) AS totalHighCones,
+			COALESCE(COUNT(*) FILTER (WHERE ScoreGamePieceEvent.gamePieceID = 'CN' 
+			AND ScoringLocation.level = 'Middle'), 0) AS totalMiddleCones,
+			COALESCE(COUNT(*) FILTER (WHERE ScoreGamePieceEvent.gamePieceID = 'CN' 
+			AND ScoringLocation.level = 'Low'), 0) AS totalLowCones,
+			COALESCE(COUNT(*) FILTER (WHERE ScoreGamePieceEvent.gamePieceID = 'CB' 
+			AND ScoringLocation.level = 'High'), 0) AS totalHighCubes,
+			COALESCE(COUNT(*) FILTER (WHERE ScoreGamePieceEvent.gamePieceID = 'CB' 
+			AND ScoringLocation.level = 'Middle'), 0) AS totalMiddleCubes,
+			COALESCE(COUNT(*) FILTER (WHERE ScoreGamePieceEvent.gamePieceID = 'CB' 
+			AND ScoringLocation.level = 'Low'), 0) AS totalLowCubes
+		    FROM Scout
+			LEFT JOIN ScoreGamePieceEvent ON 
+				(Scout.id = ScoreGamePieceEvent.scoutid)
+			JOIN ScoringLocation ON 
+				(ScoreGamePieceEvent.scoringLocationID = ScoringLocation.ID)
+		    GROUP BY Scout.id
+	      	             ) AS PiecesPerScout ON (RobotInMatch.ID = PiecesPerScout.robotInMatchID)
+
+	    GROUP BY RobotInMatch.id
+	             ) AS PiecesPerMatch ON (Robot.TBAKey = PiecesPerMatch.robotTBAKey)
+    GROUP BY Robot.number
+    ) AS TeamGridScoring
+
+    	JOIN (
+
+	    SELECT
+		ROUND(AVG("AVG High Cones"), 2) AS "Total AVG High Cones",
+		ROUND(AVG("AVG Middle Cones"), 2) AS "Total AVG Middle Cones",
+		ROUND(AVG("AVG Low Cones"), 2) AS "Total AVG Low Cones",
+		ROUND(AVG("AVG High Cubes"), 2) AS "Total AVG High Cubes",
+		ROUND(AVG("AVG Middle Cubes"), 2) AS "Total AVG Middle Cubes",
+		ROUND(AVG("AVG Low Cubes"), 2) AS "Total AVG Low Cubes"
+	    FROM (
+		SELECT Robot.number AS "Team Number", 
+		    ROUND(AVG(highConesInAMatch), 2) AS "AVG High Cones",
+		    ROUND(AVG(middleConesInAMatch), 2) AS "AVG Middle Cones",
+		    ROUND(AVG(lowConesInAMatch), 2) AS "AVG Low Cones",
+		    ROUND(AVG(highCubesInAMatch), 2) AS "AVG High Cubes",
+		    ROUND(AVG(middleCubesInAMatch), 2) AS "AVG Middle Cubes",
+		    ROUND(AVG(lowCubesInAMatch), 2) AS "AVG Low Cubes"
+    		FROM Robot
+	   	    LEFT JOIN (
+
+	   	    -- averages the total score events for all the 
+	    	    -- scouts that scouted the same robotInMatch 
+	    	    SELECT RobotInMatch.id, RobotInMatch.robotTBAKey, 
+		    	COALESCE(AVG(totalHighCones), 0) AS highConesInAMatch,
+		    	COALESCE(AVG(totalMiddleCones), 0) AS middleConesInAMatch,
+		    	COALESCE(AVG(totalLowCones), 0) AS lowConesInAMatch,
+		    	COALESCE(AVG(totalHighCubes), 0) AS highCubesInAMatch,
+		    	COALESCE(AVG(totalMiddleCubes), 0) AS middleCubesInAMatch,
+		    	COALESCE(AVG(totalLowCubes), 0) AS lowCubesInAMatch
+	    	    FROM RobotInMatch 
+		    	LEFT JOIN (
+
+ 		    	-- totals all of the score events that a single scout
+ 		    	-- added for a match 
+ 		    	SELECT Scout.id, Scout.robotInMatchID, 
+			    COALESCE(COUNT(*) FILTER (WHERE ScoreGamePieceEvent.gamePieceID = 'CN' 
+			    AND ScoringLocation.level = 'High'), 0) AS totalHighCones,
+			    COALESCE(COUNT(*) FILTER (WHERE ScoreGamePieceEvent.gamePieceID = 'CN' 
+			    AND ScoringLocation.level = 'Middle'), 0) AS totalMiddleCones,
+			    COALESCE(COUNT(*) FILTER (WHERE ScoreGamePieceEvent.gamePieceID = 'CN' 
+			    AND ScoringLocation.level = 'Low'), 0) AS totalLowCones,
+			    COALESCE(COUNT(*) FILTER (WHERE ScoreGamePieceEvent.gamePieceID = 'CB' 
+			    AND ScoringLocation.level = 'High'), 0) AS totalHighCubes,
+			    COALESCE(COUNT(*) FILTER (WHERE ScoreGamePieceEvent.gamePieceID = 'CB' 
+			    AND ScoringLocation.level = 'Middle'), 0) AS totalMiddleCubes,
+			    COALESCE(COUNT(*) FILTER (WHERE ScoreGamePieceEvent.gamePieceID = 'CB' 
+			    AND ScoringLocation.level = 'Low'), 0) AS totalLowCubes
+		        FROM Scout
+			    LEFT JOIN ScoreGamePieceEvent ON 
+				(Scout.id = ScoreGamePieceEvent.scoutid)
+			    JOIN ScoringLocation ON 
+				(ScoreGamePieceEvent.scoringLocationID = ScoringLocation.ID)
+		        GROUP BY Scout.id
+	      	             ) AS PiecesPerScout ON (RobotInMatch.ID = PiecesPerScout.robotInMatchID)
+
+	            GROUP BY RobotInMatch.id
+	                     ) AS PiecesPerMatch ON (Robot.TBAKey = PiecesPerMatch.robotTBAKey)
+                 GROUP BY Robot.number
+            ) AS TeamGridScoring
+
+	    ) AS AverageGridScoring ON (TRUE)
+
+
+ORDER BY "Category" ASC;
+
+
+
+
+
+
 
 
 /*
  *	Query for getting data to suggest who to team up with
  */ 
+
+
+
+
+
 
 
 /*
@@ -459,7 +692,7 @@ ORDER BY "Average Points" DESC;
  */ 
 
 SELECT Robot.number AS "Team Number", 
-		ROUND(AVG(conesInAMatch), 2) AS "Average Cones Scored"
+		ROUND(COALESCE(AVG(conesInAMatch), 0), 2) AS "Average Cones Scored"
 FROM Robot
 	LEFT JOIN (
 	-- averages the total score cone events for all the 
@@ -467,13 +700,13 @@ FROM Robot
 	SELECT RobotInMatch.id, RobotInMatch.robotTBAKey, 
 			COALESCE(AVG(totalCones),0) AS conesInAMatch
 	FROM RobotInMatch 
-		LEFT JOIN (
+		JOIN (
  		-- totals all of the score cone events that a single scout
  		-- added for a match 
  		SELECT Scout.id, Scout.robotInMatchID, 
 			COALESCE(COUNT(ScoreGamePieceEvent.ID), 0) AS totalCones
 		FROM Scout
-			LEFT JOIN ScoreGamePieceEvent ON (Scout.id = ScoreGamePieceEvent.scoutid)
+			JOIN ScoreGamePieceEvent ON (Scout.id = ScoreGamePieceEvent.scoutid)
 		WHERE ScoreGamePieceEvent.gamePieceID = 'CN'
 		GROUP BY Scout.id
 	      	     ) AS ConesPerScout ON (RobotInMatch.ID = ConesPerScout.robotInMatchID)
@@ -494,7 +727,7 @@ ORDER BY "Average Cones Scored" DESC;
  */ 
 
 SELECT Robot.number AS "Team Number",
-		ROUND(AVG(cubesInAMatch), 2) AS "Average Cubes Scored"
+		ROUND(COALESCE(AVG(cubesInAMatch), 0), 2) AS "Average Cubes Scored"
 FROM Robot
 	LEFT JOIN (
 	-- averages the total score cone events for all the 
@@ -502,13 +735,13 @@ FROM Robot
 	SELECT RobotInMatch.id, RobotInMatch.robotTBAKey, 
 			COALESCE(AVG(totalCubes),0) AS cubesInAMatch
 	FROM RobotInMatch 
-		LEFT JOIN (
+		JOIN (
  		-- totals all of the score cone events that a single scout
  		-- added for a match 
  		SELECT Scout.id, Scout.robotInMatchID, 
 			COALESCE(COUNT(ScoreGamePieceEvent.ID), 0) AS totalCubes
 		FROM Scout
-			LEFT JOIN ScoreGamePieceEvent ON (Scout.id = ScoreGamePieceEvent.scoutid)
+			JOIN ScoreGamePieceEvent ON (Scout.id = ScoreGamePieceEvent.scoutid)
 		WHERE ScoreGamePieceEvent.gamePieceID = 'CB'
 		GROUP BY Scout.id
 	      	     ) AS CubesPerScout ON (RobotInMatch.ID = CubesPerScout.robotInMatchID)
@@ -529,8 +762,9 @@ ORDER BY "Average Cubes Scored" DESC;
  */ 
 
 SELECT Robot.number AS "Team Number", 
-		 ROUND(AVG(conesInAMatch), 2) AS "Average Cones Scored",
-		 ROUND(AVG(cubesInAMatch), 2) AS "Average Cubes Scored"
+	ROUND(COALESCE(AVG(conesInAMatch), 0), 2) AS "Average Cones Scored",
+	ROUND(COALESCE(AVG(cubesInAMatch), 0), 2) AS "Average Cubes Scored",
+	ROUND(COALESCE(AVG(conesInAMatch) + AVG(cubesInAMatch), 0), 2) AS "Average Pieces Scored" 
 FROM Robot
 	LEFT JOIN (
 
@@ -541,7 +775,7 @@ FROM Robot
 		COALESCE(AVG(totalCones),0) AS conesInAMatch,
 		COALESCE(AVG(totalCubes),0) AS cubesInAMatch
 	FROM RobotInMatch 
-		LEFT JOIN (
+		JOIN (
 
  		-- totals all of the score cone events 
 		-- and score cubes events that a single scout
@@ -552,7 +786,7 @@ FROM Robot
 			COALESCE(COUNT(ScoreGamePieceEvent.gamePieceID = 'CB' OR NULL), 0) 
 			AS totalCubes
 		FROM Scout
-			LEFT JOIN ScoreGamePieceEvent ON 
+			JOIN ScoreGamePieceEvent ON 
 				(Scout.id = ScoreGamePieceEvent.scoutid)
 		GROUP BY Scout.id
 	      	     ) AS PiecesPerScout ON 
@@ -562,11 +796,7 @@ FROM Robot
 	      ) AS PiecesPerMatch ON (Robot.TBAKey = PiecesPerMatch.robotTBAKey)
 
 GROUP BY Robot.number
-ORDER BY Robot.number::integer ASC;
-
-
-
-
+ORDER BY "Average Pieces Scored"  DESC;
 
 
 
@@ -622,6 +852,63 @@ GROUP BY Robot.number
 ORDER BY "AVG High" DESC, "AVG Middle" DESC, "AVG Low" DESC;
 
 
+
+/*
+ * 	Query for avg high cones, avg middle cones, avg low cones
+ * 	and avg high cubes, avg middle cubes, avg low cubes
+ */ 
+
+SELECT Robot.number AS "Team Number", 
+		ROUND(AVG(highConesInAMatch), 2) AS "AVG High Cones",
+		ROUND(AVG(middleConesInAMatch), 2) AS "AVG Middle Cones",
+		ROUND(AVG(lowConesInAMatch), 2) AS "AVG Low Cones",
+		ROUND(AVG(highCubesInAMatch), 2) AS "AVG High Cubes",
+		ROUND(AVG(middleCubesInAMatch), 2) AS "AVG Middle Cubes",
+		ROUND(AVG(lowCubesInAMatch), 2) AS "AVG Low Cubes"
+FROM Robot
+	LEFT JOIN (
+
+	-- averages the total score events for all the 
+	-- scouts that scouted the same robotInMatch 
+	SELECT RobotInMatch.id, RobotInMatch.robotTBAKey, 
+		COALESCE(AVG(totalHighCones), 0) AS highConesInAMatch,
+		COALESCE(AVG(totalMiddleCones), 0) AS middleConesInAMatch,
+		COALESCE(AVG(totalLowCones), 0) AS lowConesInAMatch,
+		COALESCE(AVG(totalHighCubes), 0) AS highCubesInAMatch,
+		COALESCE(AVG(totalMiddleCubes), 0) AS middleCubesInAMatch,
+		COALESCE(AVG(totalLowCubes), 0) AS lowCubesInAMatch
+	FROM RobotInMatch 
+		LEFT JOIN (
+
+ 		-- totals all of the score events that a single scout
+ 		-- added for a match 
+ 		SELECT Scout.id, Scout.robotInMatchID, 
+			COALESCE(COUNT(*) FILTER (WHERE ScoreGamePieceEvent.gamePieceID = 'CN' 
+			AND ScoringLocation.level = 'High'), 0) AS totalHighCones,
+			COALESCE(COUNT(*) FILTER (WHERE ScoreGamePieceEvent.gamePieceID = 'CN' 
+			AND ScoringLocation.level = 'Middle'), 0) AS totalMiddleCones,
+			COALESCE(COUNT(*) FILTER (WHERE ScoreGamePieceEvent.gamePieceID = 'CN' 
+			AND ScoringLocation.level = 'Low'), 0) AS totalLowCones,
+			COALESCE(COUNT(*) FILTER (WHERE ScoreGamePieceEvent.gamePieceID = 'CB' 
+			AND ScoringLocation.level = 'High'), 0) AS totalHighCubes,
+			COALESCE(COUNT(*) FILTER (WHERE ScoreGamePieceEvent.gamePieceID = 'CB' 
+			AND ScoringLocation.level = 'Middle'), 0) AS totalMiddleCubes,
+			COALESCE(COUNT(*) FILTER (WHERE ScoreGamePieceEvent.gamePieceID = 'CB' 
+			AND ScoringLocation.level = 'Low'), 0) AS totalLowCubes
+		FROM Scout
+			LEFT JOIN ScoreGamePieceEvent ON 
+				(Scout.id = ScoreGamePieceEvent.scoutid)
+			JOIN ScoringLocation ON 
+				(ScoreGamePieceEvent.scoringLocationID = ScoringLocation.ID)
+		GROUP BY Scout.id
+	      	     ) AS PiecesPerScout ON (RobotInMatch.ID = PiecesPerScout.robotInMatchID)
+
+	GROUP BY RobotInMatch.id
+	      ) AS PiecesPerMatch ON (Robot.TBAKey = PiecesPerMatch.robotTBAKey)
+
+GROUP BY Robot.number
+ORDER BY "AVG High Cones" DESC, "AVG Middle Cones" DESC, "AVG Middle Cones" DESC,
+		"AVG Middle Cubes" DESC;
 
 
 
