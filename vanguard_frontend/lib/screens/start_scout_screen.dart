@@ -113,7 +113,10 @@ class _StartScoutScreenState extends State<StartScoutScreen> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => const ScoutScreen(),
+                                builder: (context) => ScoutScreen(
+                                  scoutID: value,
+                                  robot: widget.robot,
+                                ),
                               ),
                             ),
                           });
