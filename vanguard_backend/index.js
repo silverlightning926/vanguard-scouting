@@ -210,7 +210,7 @@ app.get("/getTeam/:matchtbakey/:alliancestationid", (req, res) => {
 });
 
 app.post("/startMatch/:robotinmatchid/:preloadedpieceid", (req, res) => {
-  let queryString = `INSERT INTO scout (robotinmatchid, preloadedpieceid) VALUES (${req.params.robotinmatchid}, ${req.params.preloadedpieceid.toUpperCase() == 'NULL'? 'NULL' : '\'${req.params.preloadedpieceid}\''}) RETURNING id as scoutid`;
+  let queryString = `INSERT INTO scout (robotinmatchid, preloadedpieceid) VALUES (${req.params.robotinmatchid}, ${req.params.preloadedpieceid.toUpperCase() == 'NULL'? 'NULL' : "\'" + req.params.preloadedpieceid + "\'"}) RETURNING id as scoutid`;
   pool.query(queryString, (error, response) => {
     if (error) {
       console.log(error);
@@ -221,7 +221,7 @@ app.post("/startMatch/:robotinmatchid/:preloadedpieceid", (req, res) => {
         if (error) {
           console.log(error);
         } else {
-          res.sendStatus(200);
+          res.json({"scoutID": scoutId});
         }
       });
     }
@@ -242,7 +242,6 @@ app.post("/endMatch/:scoutid/", (req, res) => {
 
 app.post("/addNotes/:scoutid", (req, res) => {
   let queryString = `UPDATE scout SET notes = \'${req.body["notes"]}\' WHERE id = ${req.params.scoutid}`;
-  console.log(queryString);
   pool.query(queryString, (error, response) => {
     if (error) {
       console.log(error);
@@ -266,8 +265,6 @@ app.post(
       "', '" +
       req.params.pickuplocationid +
       "', now()::timestamp(0))";
-
-    console.log(queryString);
 
     pool.query(queryString, (error, response) => {
       if (error) {
@@ -294,8 +291,6 @@ app.post(
       req.params.scoringlocationid +
       "', now()::timestamp(0))";
 
-    console.log(queryString);
-
     pool.query(queryString, (error, response) => {
       if (error) {
         console.log(error);
@@ -311,15 +306,13 @@ app.post(
   "/scoreNonGamePiece/:scoutid/:matchperiod/:scoringtype",
   (req, res) => {
     let queryString =
-      "INSERT INTO nongamepiecescoringevent (scoutid, matchperiodid, nongamepiecescoringtypeid, timeoccurred) VALUES (" +
+      "INSERT INTO scorewithoutgamepieceevent (scoutid, matchperiodid, nongamepiecescoringtypeid, timeoccurred) VALUES (" +
       req.params.scoutid +
       ", '" +
       req.params.matchperiod +
       "', '" +
       req.params.scoringtype +
       "', now()::timestamp(0))";
-
-    console.log(queryString);
 
     pool.query(queryString, (error, response) => {
       if (error) {
