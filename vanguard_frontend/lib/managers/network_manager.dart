@@ -20,6 +20,7 @@ class NetworkManager {
   static const String _nonGamePieceScoringEndpoint = '/scoreNonGamePiece';
   static const String _endMatchEndpoint = '/endMatch';
   static const String _addNotesEndpoint = '/addNotes';
+  static const String _getTeamsEndpoint = '/getTeams';
 
   static Future<bool> isAlive() async {
     http.Response response = await http.get(
@@ -137,5 +138,14 @@ class NetworkManager {
     );
 
     return response.statusCode == 200;
+  }
+
+  static Future<List<Robot>> getTeams() async {
+    http.Response response = await http.get(
+      Uri.http(_baseURL, _getTeamsEndpoint),
+    );
+    return (json.jsonDecode(response.body) as List)
+        .map((data) => Robot.fromJson(data))
+        .toList();
   }
 }
