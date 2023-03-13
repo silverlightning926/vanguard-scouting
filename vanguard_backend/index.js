@@ -35,9 +35,7 @@ async function requestData(endpoint) {
     baseURL: "https://www.thebluealliance.com/api/v3",
   };
 
-  return await axios.get(endpoint, config).catch((error) => {
-    console.log(error);
-  });
+  return await axios.get(endpoint, config)
 }
 
 app.get("/status", (req, res) => {
@@ -58,7 +56,6 @@ app.get("/loadEvent/:eventKey", (req, res) => {
           (error, robotResponse) => {
             getEventTeams(req.params.eventKey).then((eventTeamsResponse) => {
               let teams = eventTeamsResponse["data"];
-              console.log(teams);
               let teamQueryString =
                 "INSERT INTO robot (tbakey, number, name) VALUES ";
 
