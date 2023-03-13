@@ -29,13 +29,17 @@ function getEvent(eventKey) {
   return requestData("event/" + eventKey + "/simple");
 }
 
+function get2023Events(year) {
+  return requestData("events/" + year + "/keys");
+}
+
 async function requestData(endpoint) {
   let config = {
     headers: { "X-TBA-Auth-Key": TBA["authKey"] },
     baseURL: "https://www.thebluealliance.com/api/v3",
   };
 
-  return await axios.get(endpoint, config)
+  return await axios.get(endpoint, config);
 }
 
 app.get("/status", (req, res) => {
@@ -43,168 +47,178 @@ app.get("/status", (req, res) => {
 });
 
 app.get("/loadEvent/:eventKey", (req, res) => {
-  pool.query(
-    "SELECT * FROM competition ORDER BY competition.startdate",
-    (error, competitionResponse) => {
-      let compsInDB = competitionResponse.rows.map((competition) => {
-        return competition.tbakey;
-      });
+  req.params.eventKey = req.params.eventKey.replace("/[^a-zA-Z0-9]/g", "");
 
-      if (!compsInDB.includes(req.params.eventKey)) {
-        pool.query(
-          "SELECT * FROM robot ORDER BY robot.number::INTEGER",
-          (error, robotResponse) => {
-            getEventTeams(req.params.eventKey).then((eventTeamsResponse) => {
-              let teams = eventTeamsResponse["data"];
-              let teamQueryString =
-                "INSERT INTO robot (tbakey, number, name) VALUES ";
+  get2023Events(2023).then((response) => {
+    if (response["data"].includes(req.params.eventKey)) {
+      pool.query(
+        "SELECT * FROM competition ORDER BY competition.startdate",
+        (error, competitionResponse) => {
+          let compsInDB = competitionResponse.rows.map((competition) => {
+            return competition.tbakey;
+          });
 
-              let teamsInDB = robotResponse.rows.map((team) => {
-                return team.tbakey;
-              });
+          if (!compsInDB.includes(req.params.eventKey)) {
+            pool.query(
+              "SELECT * FROM robot ORDER BY robot.number::INTEGER",
+              (error, robotResponse) => {
+                getEventTeams(req.params.eventKey).then(
+                  (eventTeamsResponse) => {
+                    let teams = eventTeamsResponse["data"];
+                    let teamQueryString =
+                      "INSERT INTO robot (tbakey, number, name) VALUES ";
 
-              teams.forEach((team) => {
-                if (!teamsInDB.includes(team["key"])) {
-                  let temp =
-                    teamQueryString +
-                    "('" +
-                    team["key"] +
-                    "', '" +
-                    team["team_number"] +
-                    "', '" +
-                    team["nickname"].replace(/[^a-zA-Z ]/g, "") +
-                    "')";
-                  pool.query(temp);
-                }
-              });
+                    let teamsInDB = robotResponse.rows.map((team) => {
+                      return team.tbakey;
+                    });
 
-              getEventData(req.params.eventKey).then((response) => {
-                let eventKey = response["data"]["key"];
-                let eventName = response["data"]["name"];
-                let eventStartDate = response["data"]["start_date"];
-                let eventInfoQueryString =
-                  "INSERT INTO competition (tbakey, name, startdate) VALUES ('" +
-                  eventKey.toString() +
-                  "', '" +
-                  eventName +
-                  "', '" +
-                  eventStartDate +
-                  "')";
-
-                pool.query(eventInfoQueryString);
-
-                getEventMatches(req.params.eventKey).then((response) => {
-                  let matches = response["data"];
-
-                  let matchQueryString =
-                    "INSERT INTO match (tbakey, competitiontbakey, matchtypeid, number) VALUES";
-
-                  matches.forEach((match) => {
-                    let matchType = "Q";
-
-                    switch (match["comp_level"]) {
-                      case "qm":
-                        matchType = "Q";
-                        break;
-                      case "f":
-                        matchType = "F";
-                        break;
-                      default:
-                        matchType = "P";
-                    }
-
-                    let matchKey = match["key"];
-                    let tbaCompKey = match["event_key"];
-                    let matchNumber = match["match_number"];
-
-                    let temp =
-                      matchQueryString +
-                      "('" +
-                      matchKey +
-                      "', '" +
-                      tbaCompKey +
-                      "', '" +
-                      matchType +
-                      "', '" +
-                      matchNumber +
-                      "')";
-                    pool.query(temp, (error, response) => {
-                      if (error) {
-                        console.log(error);
-                        res.sendStatus(500);
-                      } else {
-                        let redAlliance =
-                          match["alliances"]["red"]["team_keys"];
-                        let blueAlliance =
-                          match["alliances"]["blue"]["team_keys"];
-
-                        let robotinMatchQueryString =
-                          "INSERT INTO robotinMatch (matchtbakey, robottbakey, alliancestationid) VALUES";
-
-                        pool.query(
-                          robotinMatchQueryString +
-                            "('" +
-                            matchKey +
-                            "', '" +
-                            redAlliance[0] +
-                            "', 'R1')"
-                        );
-                        pool.query(
-                          robotinMatchQueryString +
-                            "('" +
-                            matchKey +
-                            "', '" +
-                            redAlliance[1] +
-                            "', 'R2')"
-                        );
-                        pool.query(
-                          robotinMatchQueryString +
-                            "('" +
-                            matchKey +
-                            "', '" +
-                            redAlliance[2] +
-                            "', 'R3')"
-                        );
-
-                        pool.query(
-                          robotinMatchQueryString +
-                            "('" +
-                            matchKey +
-                            "', '" +
-                            blueAlliance[0] +
-                            "', 'B1')"
-                        );
-                        pool.query(
-                          robotinMatchQueryString +
-                            "('" +
-                            matchKey +
-                            "', '" +
-                            blueAlliance[1] +
-                            "', 'B2')"
-                        );
-                        pool.query(
-                          robotinMatchQueryString +
-                            "('" +
-                            matchKey +
-                            "', '" +
-                            blueAlliance[2] +
-                            "', 'B3')"
-                        );
+                    teams.forEach((team) => {
+                      if (!teamsInDB.includes(team["key"])) {
+                        let temp =
+                          teamQueryString +
+                          "('" +
+                          team["key"] +
+                          "', '" +
+                          team["team_number"] +
+                          "', '" +
+                          team["nickname"].replace(/[^a-zA-Z ]/g, "") +
+                          "')";
+                        pool.query(temp);
                       }
                     });
-                  });
-                });
-              });
-            });
-          }
-        );
 
-        res.sendStatus(200);
-      } else {
-        res.sendStatus(400);
-      }
+                    getEventData(req.params.eventKey).then((response) => {
+                      let eventKey = response["data"]["key"];
+                      let eventName = response["data"]["name"];
+                      let eventStartDate = response["data"]["start_date"];
+                      let eventInfoQueryString =
+                        "INSERT INTO competition (tbakey, name, startdate) VALUES ('" +
+                        eventKey.toString() +
+                        "', '" +
+                        eventName +
+                        "', '" +
+                        eventStartDate +
+                        "')";
+
+                      pool.query(eventInfoQueryString);
+
+                      getEventMatches(req.params.eventKey).then((response) => {
+                        let matches = response["data"];
+
+                        let matchQueryString =
+                          "INSERT INTO match (tbakey, competitiontbakey, matchtypeid, number) VALUES";
+
+                        matches.forEach((match) => {
+                          let matchType = "Q";
+
+                          switch (match["comp_level"]) {
+                            case "qm":
+                              matchType = "Q";
+                              break;
+                            case "f":
+                              matchType = "F";
+                              break;
+                            default:
+                              matchType = "P";
+                          }
+
+                          let matchKey = match["key"];
+                          let tbaCompKey = match["event_key"];
+                          let matchNumber = match["match_number"];
+
+                          let temp =
+                            matchQueryString +
+                            "('" +
+                            matchKey +
+                            "', '" +
+                            tbaCompKey +
+                            "', '" +
+                            matchType +
+                            "', '" +
+                            matchNumber +
+                            "')";
+                          pool.query(temp, (error, response) => {
+                            if (error) {
+                              console.log(error);
+                              res.sendStatus(500);
+                            } else {
+                              let redAlliance =
+                                match["alliances"]["red"]["team_keys"];
+                              let blueAlliance =
+                                match["alliances"]["blue"]["team_keys"];
+
+                              let robotinMatchQueryString =
+                                "INSERT INTO robotinMatch (matchtbakey, robottbakey, alliancestationid) VALUES";
+
+                              pool.query(
+                                robotinMatchQueryString +
+                                  "('" +
+                                  matchKey +
+                                  "', '" +
+                                  redAlliance[0] +
+                                  "', 'R1')"
+                              );
+                              pool.query(
+                                robotinMatchQueryString +
+                                  "('" +
+                                  matchKey +
+                                  "', '" +
+                                  redAlliance[1] +
+                                  "', 'R2')"
+                              );
+                              pool.query(
+                                robotinMatchQueryString +
+                                  "('" +
+                                  matchKey +
+                                  "', '" +
+                                  redAlliance[2] +
+                                  "', 'R3')"
+                              );
+
+                              pool.query(
+                                robotinMatchQueryString +
+                                  "('" +
+                                  matchKey +
+                                  "', '" +
+                                  blueAlliance[0] +
+                                  "', 'B1')"
+                              );
+                              pool.query(
+                                robotinMatchQueryString +
+                                  "('" +
+                                  matchKey +
+                                  "', '" +
+                                  blueAlliance[1] +
+                                  "', 'B2')"
+                              );
+                              pool.query(
+                                robotinMatchQueryString +
+                                  "('" +
+                                  matchKey +
+                                  "', '" +
+                                  blueAlliance[2] +
+                                  "', 'B3')"
+                              );
+                            }
+                          });
+                        });
+                      });
+                    });
+                  }
+                );
+              }
+            );
+
+            res.sendStatus(200);
+          } else {
+            res.sendStatus(400);
+          }
+        }
+      );
+    } else {
+      res.sendStatus(400);
     }
-  );
+  });
 });
 
 app.get("/getCompetitions", (req, res) => {
