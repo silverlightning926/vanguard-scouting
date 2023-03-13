@@ -338,6 +338,20 @@ app.post("/addFault/:scoutid/:matchperiod/:faulttypeid", (req, res) => {
   });
 });
 
+app.get("/getTeams", (req, res) => {
+  let queryString = `SELECT * FROM robot ORDER BY robot.number::INTEGER;`;
+
+  pool.query(queryString, (error, response) => {
+    if (error) {
+      console.log(error);
+      response.sendStatus(500);
+    } else {
+      res.status(200).json(response.rows);
+    }
+  });
+});
+
+
 app.listen(port, () => {
   console.log(`App listening on port ${port}`);
 });
