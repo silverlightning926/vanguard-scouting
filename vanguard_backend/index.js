@@ -210,7 +210,7 @@ app.get("/getTeam/:matchtbakey/:alliancestationid", (req, res) => {
 });
 
 app.post("/startMatch/:robotinmatchid/:preloadedpieceid", (req, res) => {
-  let queryString = `INSERT INTO scout (robotinmatchid, preloadedpieceid) VALUES (${req.params.robotinmatchid}, \'${req.params.preloadedpieceid}\') RETURNING id as scoutid`;
+  let queryString = `INSERT INTO scout (robotinmatchid, preloadedpieceid) VALUES (${req.params.robotinmatchid}, ${req.params.preloadedpieceid.toUpperCase() == 'NULL'? 'NULL' : '\'${req.params.preloadedpieceid}\''}) RETURNING id as scoutid`;
   pool.query(queryString, (error, response) => {
     if (error) {
       console.log(error);
