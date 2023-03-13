@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_countdown_timer/countdown_timer_controller.dart';
 import 'package:flutter_countdown_timer/flutter_countdown_timer.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 import 'package:vanguard_frontend/managers/network_manager.dart';
@@ -18,7 +19,6 @@ class ScoutScreen extends StatefulWidget {
 
 class _ScoutScreenState extends State<ScoutScreen> {
   bool _inTeleop = false;
-  late int _countdownTime;
 
   final List<Widget> _autoNonGamePieceScoring = <Widget>[
     const Text("None"),
@@ -36,12 +36,24 @@ class _ScoutScreenState extends State<ScoutScreen> {
   ];
   final List<bool> _teleSelected = <bool>[true, false, false, false];
 
+  final int _endTime = DateTime.now().millisecondsSinceEpoch + 1000 * 17;
+
+  late CountdownTimerController _controller;
+
   @override
   void initState() {
     super.initState();
-    _countdownTime = DateTime.now().millisecondsSinceEpoch +
-        1000 * 18; // 18 seconds for auto period
     context.loaderOverlay.hide();
+    _controller = CountdownTimerController(
+      endTime: _endTime,
+      onEnd: onTimerEnd,
+    );
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _controller.dispose();
   }
 
   @override
@@ -64,46 +76,9 @@ class _ScoutScreenState extends State<ScoutScreen> {
                     ),
                   ),
                   CountdownTimer(
-                    onEnd: () {
-                      setState(() {
-                        String scoringType = '';
-
-                        if (!_inTeleop) {
-                          if (_autoSelected[1]) {
-                            scoringType = 'MB';
-                          } else if (_autoSelected[2]) {
-                            scoringType = 'DK';
-                          } else if (_autoSelected[3]) {
-                            scoringType = 'EG';
-                          }
-
-                          NetworkManager.scoreNonGamePiece(
-                            widget.scoutID,
-                            (!_inTeleop ? 'A' : 'T'),
-                            scoringType,
-                          );
-                          _inTeleop = true;
-                          _countdownTime =
-                              DateTime.now().millisecondsSinceEpoch +
-                                  1000 * 117; // 2 minutes for teleop period
-                        } else {
-                          if (_teleSelected[1]) {
-                            scoringType = 'PK';
-                          } else if (_teleSelected[2]) {
-                            scoringType = 'DK';
-                          } else if (_teleSelected[3]) {
-                            scoringType = 'EG';
-                          }
-
-                          NetworkManager.scoreNonGamePiece(
-                            widget.scoutID,
-                            (!_inTeleop ? 'A' : 'T'),
-                            scoringType,
-                          );
-                        }
-                      });
-                    },
-                    endTime: _countdownTime,
+                    controller: _controller,
+                    endTime: _endTime,
+                    onEnd: onTimerEnd,
                     widgetBuilder: (_, time) {
                       if (time == null) {
                         return const Text('Match Ended');
@@ -430,6 +405,48 @@ class _ScoutScreenState extends State<ScoutScreen> {
         ),
       ),
     );
+  }
+
+  void onTimerEnd() {
+    setState(() {
+      String scoringType = '';
+
+      if (!_inTeleop) {
+        _controller = CountdownTimerController(
+          endTime: DateTime.now().millisecondsSinceEpoch + 1000 * 117,
+          onEnd: () => onTimerEnd(),
+        );
+        _inTeleop = true;
+
+        if (_autoSelected[1]) {
+          scoringType = 'MB';
+        } else if (_autoSelected[2]) {
+          scoringType = 'DK';
+        } else if (_autoSelected[3]) {
+          scoringType = 'EG';
+        }
+
+        NetworkManager.scoreNonGamePiece(
+          widget.scoutID,
+          (!_inTeleop ? 'A' : 'T'),
+          scoringType,
+        );
+      } else {
+        if (_teleSelected[1]) {
+          scoringType = 'PK';
+        } else if (_teleSelected[2]) {
+          scoringType = 'DK';
+        } else if (_teleSelected[3]) {
+          scoringType = 'EG';
+        }
+
+        NetworkManager.scoreNonGamePiece(
+          widget.scoutID,
+          (!_inTeleop ? 'A' : 'T'),
+          scoringType,
+        );
+      }
+    });
   }
 }
 
