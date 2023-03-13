@@ -19,6 +19,7 @@ class NetworkManager {
   static const String _faultEndpoint = '/addFault';
   static const String _nonGamePieceScoringEndpoint = '/scoreNonGamePiece';
   static const String _endMatchEndpoint = '/endMatch';
+  static const String _addNotesEndpoint = '/addNotes';
 
   static Future<bool> isAlive() async {
     http.Response response = await http.get(
@@ -115,6 +116,24 @@ class NetworkManager {
         _baseURL,
         '$_endMatchEndpoint/$scoutID',
       ),
+    );
+
+    return response.statusCode == 200;
+  }
+
+  static Future<bool> addNotes(int scoutID, String notes) async {
+    http.Response response = await http.post(
+      Uri.http(
+        _baseURL,
+        '$_addNotesEndpoint/$scoutID',
+      ),
+      body: {
+        "notes": notes.replaceAll(
+          RegExp('[^A-Za-z0-9]'),
+          '',
+        ),
+      },
+      encoding: Encoding.getByName("utf-8"),
     );
 
     return response.statusCode == 200;
