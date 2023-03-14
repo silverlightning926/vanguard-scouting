@@ -22,6 +22,7 @@ class Vanguard extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Vanguard Scouting',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData.dark().copyWith(
         scaffoldBackgroundColor: Colors.black,
         appBarTheme: const AppBarTheme(
