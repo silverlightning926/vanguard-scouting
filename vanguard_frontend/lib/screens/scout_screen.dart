@@ -428,7 +428,7 @@ class _ScoutScreenState extends State<ScoutScreen> {
 
         NetworkManager.scoreNonGamePiece(
           widget.scoutID,
-          (!_inTeleop ? 'A' : 'T'),
+          'A',
           scoringType,
         );
       } else {
@@ -442,7 +442,7 @@ class _ScoutScreenState extends State<ScoutScreen> {
 
         NetworkManager.scoreNonGamePiece(
           widget.scoutID,
-          (!_inTeleop ? 'A' : 'T'),
+          'T',
           scoringType,
         );
       }
