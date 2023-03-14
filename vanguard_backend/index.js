@@ -47,7 +47,7 @@ app.get("/status", (req, res) => {
 });
 
 app.get("/loadEvent/:eventKey", (req, res) => {
-  req.params.eventKey = req.params.eventKey.replace("/[^a-zA-Z0-9]/g", "");
+  req.params.eventKey = req.params.eventKey.replace(/[^a-zA-Z0-9 ]/g, "");
 
   get2023Events(2023).then((response) => {
     if (response["data"].includes(req.params.eventKey)) {
@@ -295,7 +295,9 @@ app.post("/endMatch/:scoutid/", (req, res) => {
 });
 
 app.post("/addNotes/:scoutid", (req, res) => {
-  let queryString = `UPDATE scout SET notes = \'${req.body["notes"]}\' WHERE id = ${req.params.scoutid}`;
+  let notes = req.body["notes"].replace(/[^a-zA-Z0-9 ]/g, "");
+
+  let queryString = `UPDATE scout SET notes = \'${notes}\' WHERE id = ${req.params.scoutid}`;
   pool.query(queryString, (error, response) => {
     if (error) {
       console.log(error);
