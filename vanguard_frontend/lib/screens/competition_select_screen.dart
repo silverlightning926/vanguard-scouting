@@ -47,7 +47,7 @@ class _CompetitionSelectScreenState extends State<CompetitionSelectScreen> {
                 child: IconButton(
                   onPressed: () {
                     context.loaderOverlay.show();
-                    NetworkManager.getTeams().then(
+                    NetworkManager.getStats().then(
                       (value) => {
                         Navigator.push(
                           context,

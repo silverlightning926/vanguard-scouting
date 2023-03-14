@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:vanguard_frontend/serialized/robot.dart';
+import 'package:vanguard_frontend/serialized/team_stats.dart';
+
+import 'analytics_screen.dart';
 
 class AnalyticsTeamSelectScreen extends StatelessWidget {
-  final List<Robot> robots;
+  final List<TeamStats> robots;
 
   const AnalyticsTeamSelectScreen({super.key, required this.robots});
 
@@ -22,9 +25,18 @@ class AnalyticsTeamSelectScreen extends StatelessWidget {
               shape: Border.all(
                 color: Colors.white,
               ),
-              title: Text(robots[index].name!),
-              subtitle: Text(robots[index].number!),
-              onTap: () {},
+              title: Text(robots[index].teamName!),
+              subtitle: Text(robots[index].teamNumber!),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => AnalyticsScreen(
+                      teamStats: robots[index],
+                    ),
+                  ),
+                );
+              },
             );
           },
         ),

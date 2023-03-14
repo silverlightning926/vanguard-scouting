@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:vanguard_frontend/serialized/competition.dart';
 import 'package:vanguard_frontend/serialized/match.dart';
 import 'package:vanguard_frontend/serialized/robot.dart';
+import 'package:vanguard_frontend/serialized/team_stats.dart';
 
 class NetworkManager {
   static const String _baseURL = '10.0.0.217:3000';
@@ -21,6 +22,7 @@ class NetworkManager {
   static const String _endMatchEndpoint = '/endMatch';
   static const String _addNotesEndpoint = '/addNotes';
   static const String _getTeamsEndpoint = '/getTeams';
+  static const String _getStats = '/getStats';
 
   static Future<bool> isAlive() async {
     http.Response response = await http.get(
@@ -146,6 +148,15 @@ class NetworkManager {
     );
     return (json.jsonDecode(response.body) as List)
         .map((data) => Robot.fromJson(data))
+        .toList();
+  }
+
+  static Future<List<TeamStats>> getStats() async {
+    http.Response response = await http.get(
+      Uri.http(_baseURL, _getStats),
+    );
+    return (json.jsonDecode(response.body) as List)
+        .map((data) => TeamStats.fromJson(data))
         .toList();
   }
 }
